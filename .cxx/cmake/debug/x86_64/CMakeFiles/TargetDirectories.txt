@@ -1,2 +1,0 @@
-/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/.cxx/cmake/debug/x86_64/CMakeFiles/rebuild_cache.dir
-/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/.cxx/cmake/debug/x86_64/CMakeFiles/edit_cache.dir
