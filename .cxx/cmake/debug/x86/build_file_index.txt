@@ -1,0 +1,1 @@
+/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/CMakeLists.txt

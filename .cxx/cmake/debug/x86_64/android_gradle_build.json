@@ -1,0 +1,24 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/treek/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/.cxx/cmake/debug/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/treek/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/home/treek/indicio/liquid-avatar/liquid-avatar-android-sample-app/Aries Mobile Agent Android/.cxx/cmake/debug/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {},
+  "toolchains": {},
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}
