@@ -1,8 +1,10 @@
 # Aries Mobile Agent Android
 
 ## Installation
-* Add Hyperledger Maven repo `maven { url "https://repo.sovrin.org/repository/maven-public" }`
+* Add Hyperledger Maven repo `maven { url "https://repo.sovrin.org/repository/maven-public" }` in build.gradle
+* Set minSdkVersion to 21 in build.gradle
 * Import Aries Mobile Agent Android AAR
+* In MainActivity.onCreate() make sure that you are running `Os.setenv("EXTERNAL_STORAGE", getExternalFilesDir(null).getAbsolutePath(), true);` before you use the module.
 
 ## Development
 ### Add module to your project
