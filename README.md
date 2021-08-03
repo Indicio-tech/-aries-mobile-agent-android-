@@ -17,5 +17,4 @@
 * Select `3 Module Dependency`
 * Check the box for `aries-mobile-agent-android`
 * Hit OK and the module will now be linked
-* Add Aries Mobile Agent Android (cloned repo) as a dependency for app
 
