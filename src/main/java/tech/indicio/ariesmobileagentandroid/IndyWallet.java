@@ -118,4 +118,9 @@ public class IndyWallet {
         Gson gson = new Gson();
         return Crypto.packMessage(this.wallet, gson.toJson(recipientKeys), senderVerkey, message.getBytes()).get();
     }
+
+    public byte[] unpackMessage(byte[] messageBytes) throws IndyException, ExecutionException, InterruptedException {
+        Log.d(TAG, "Unpacking Message");
+        return Crypto.unpackMessage(this.wallet, messageBytes).get();
+    }
 }

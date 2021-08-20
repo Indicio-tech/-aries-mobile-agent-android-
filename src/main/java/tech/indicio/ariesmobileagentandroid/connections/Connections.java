@@ -39,17 +39,10 @@ public class Connections extends MessageListener {
 
     public Connections(IndyWallet indyWallet, MessageSender messageSender){
         Log.d(TAG, "Creating Connections service");
-        this.supportedMessages.put(InvitationMessage.type, InvitationMessage.class);
+        this.supportedMessages.put(ConnectionRequest.type, ConnectionRequest.class);
         this.indyWallet = indyWallet;
         this.messageSender = messageSender;
     }
-
-    public static String invitationJson = "{" +
-            "\"@type\": \"https://didcomm.org/connections/1.0/invitation\"," +
-            "\"@id\": \"12345678900987654321\"," +
-            "\"label\": \"Alice\"," +
-            "\"did\": \"did:sov:QmWbsNYhMrjHiqZDTUTEJs\"" +
-            "}";
 
 
     public void receiveInvitationUrl(String invitationUrl) throws Exception {

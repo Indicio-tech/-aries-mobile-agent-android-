@@ -20,9 +20,11 @@ public class MessageSender {
     private static final String TAG = "AMAA-MessageSender";
 
     private IndyWallet indyWallet;
+    private TransportService transportService;
 
-    public MessageSender (IndyWallet indyWallet) {
+    public MessageSender (IndyWallet indyWallet, TransportService transportService) {
         this.indyWallet = indyWallet;
+        this.transportService = transportService;
     }
 
     //TODO: Replace ourKey, endpoint, recipientKeys, and routingKeys with ConnectionRecord
@@ -38,6 +40,6 @@ public class MessageSender {
 
         byte[] packedMessage = this.indyWallet.packMessage(jsonMessage, recipientKeys, senderVerkey);
 
-        TransportService.send(packedMessage, endpoint);
+        this.transportService.send(packedMessage, endpoint);
     }
 }

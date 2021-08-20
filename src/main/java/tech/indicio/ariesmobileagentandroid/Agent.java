@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
+import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 
 public class Agent {
@@ -24,6 +25,7 @@ public class Agent {
     public Connections connections;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
+    private TransportService transportsService;
 
     private Pool pool;
 
@@ -73,13 +75,14 @@ public class Agent {
 
         //Creating MessageReceiver and registering connections
         try{
-            this.messageSender = new MessageSender(indyWallet);
-            this.messageReceiver = new MessageReceiver();
+            this.messageReceiver = new MessageReceiver(this.indyWallet);
+            this.transportsService = new TransportService(this.messageReceiver);
+            this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
 
-            this.connections = new Connections(indyWallet, this.messageSender);
+            this.connections = new Connections(this.indyWallet, this.messageSender);
             this.messageReceiver.registerListener(this.connections);
 
-            messageReceiver.receiveMessage(Connections.invitationJson);
+            //Register Transports
         } catch (Exception e) {
             e.printStackTrace();
         }
