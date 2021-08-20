@@ -20,7 +20,7 @@ public class DIDDoc {
         this.service = service;
     }
 
-    public static DIDDoc createDefaultDIDDoc(String did, String verkey){
+    public static DIDDoc createDefaultDIDDoc(String did, String verkey) {
         String context = "https://w3id.org/did/v1";
         String id = did;
         PublicKey publicKey = new PublicKey(id, "Ed25519VerificationKey2018", id, verkey);

@@ -3,7 +3,6 @@ package tech.indicio.ariesmobileagentandroid.transports;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
 
 import java.io.IOException;
 
@@ -18,12 +17,11 @@ import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 
 public class HTTPTransport {
 
-    private static final String TAG = "AMAA-HTTPTransport";
     public static final MediaType JSON = MediaType.get("application/ssi-agent-wire");
-
+    private static final String TAG = "AMAA-HTTPTransport";
     MessageReceiver messageReceiver;
 
-    public HTTPTransport(MessageReceiver messageReceiver){
+    public HTTPTransport(MessageReceiver messageReceiver) {
         this.messageReceiver = messageReceiver;
     }
 

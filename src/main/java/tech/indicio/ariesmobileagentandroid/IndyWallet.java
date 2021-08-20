@@ -17,14 +17,18 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
-import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
-
 public class IndyWallet {
     private static final String TAG = "AMAA-IndyWallet";
-    private Wallet wallet;
+    private final Wallet wallet;
+    private final String walletKey;
     public String agentId;
 
-    private String walletKey;
+    public IndyWallet(String agentId, String walletKey) throws JSONException, InterruptedException, ExecutionException, IndyException {
+        //Load wallet
+        this.agentId = agentId;
+        this.walletKey = walletKey;
+        this.wallet = this.openWallet(getWalletConfig(), getWalletCredentials(), this.agentId);
+    }
 
     /**
      * @return walletConfig
@@ -44,13 +48,6 @@ public class IndyWallet {
         return new JSONObject()
                 .put("key", this.walletKey)
                 .toString();
-    }
-
-    public IndyWallet(String agentId, String walletKey) throws JSONException, InterruptedException, ExecutionException, IndyException {
-        //Load wallet
-        this.agentId = agentId;
-        this.walletKey = walletKey;
-        this.wallet = this.openWallet(getWalletConfig(), getWalletCredentials(), this.agentId);
     }
 
     private void createWallet(String walletConfig, String walletCredentials) throws IndyException, ExecutionException, InterruptedException {
@@ -93,7 +90,7 @@ public class IndyWallet {
     }
 
     private void createMasterSecret(Wallet wallet, String agentId) throws IndyException {
-        try{
+        try {
             Anoncreds.proverCreateMasterSecret(wallet, agentId);
         } catch (IndyException e) {
             IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
@@ -104,7 +101,6 @@ public class IndyWallet {
     }
 
     /**
-     *
      * @return A Pair<String DID, String verkey>
      * @throws IndyException
      * @throws ExecutionException
@@ -129,7 +125,6 @@ public class IndyWallet {
 
 
     /**
-     *
      * @param type
      * @param id
      * @param value

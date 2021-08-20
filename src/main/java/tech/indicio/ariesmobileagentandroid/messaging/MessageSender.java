@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.hyperledger.indy.sdk.IndyException;
-import org.hyperledger.indy.sdk.crypto.Crypto;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,10 +19,10 @@ public class MessageSender {
 
     private static final String TAG = "AMAA-MessageSender";
 
-    private IndyWallet indyWallet;
-    private TransportService transportService;
+    private final IndyWallet indyWallet;
+    private final TransportService transportService;
 
-    public MessageSender (IndyWallet indyWallet, TransportService transportService) {
+    public MessageSender(IndyWallet indyWallet, TransportService transportService) {
         this.indyWallet = indyWallet;
         this.transportService = transportService;
     }
@@ -32,8 +31,8 @@ public class MessageSender {
     public void sendMessage(BaseMessage message, ConnectionRecord connectionRecord) throws JSONException, InterruptedException, ExecutionException, IndyException {
 
         //TODO: Specify services to use?
-        String endpoint = connectionRecord.theirDidDoc.service[0].serviceEndpoint;
-        String[] recipientKeys = connectionRecord.theirDidDoc.service[0].recipientKeys;
+        String endpoint = connectionRecord.invitation.serviceEndpoint;
+        String[] recipientKeys = connectionRecord.didDoc.service[0].recipientKeys;
 
         String senderVerkey = connectionRecord.verkey;
 

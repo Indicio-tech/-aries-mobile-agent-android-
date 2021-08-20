@@ -25,12 +25,12 @@ public class InvitationMessage extends BaseMessage {
             String serviceEndpoint,
             String[] recipientKeys,
             String[] routingKeys
-    ){
+    ) {
         this.id = id;
         this.label = label;
         this.serviceEndpoint = serviceEndpoint;
         this.recipientKeys = recipientKeys;
-        this.routingKeys  = routingKeys;
+        this.routingKeys = routingKeys;
     }
 
 

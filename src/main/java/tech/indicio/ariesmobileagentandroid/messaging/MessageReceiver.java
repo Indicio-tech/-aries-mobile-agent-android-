@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Modifier;
@@ -16,12 +15,11 @@ import java.util.Map;
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
 
 public class MessageReceiver {
-    private ArrayList<MessageListener> listeners = new ArrayList<>();
     private static final String TAG = "AMAA-MessageReceiver";
+    private final ArrayList<MessageListener> listeners = new ArrayList<>();
+    private final IndyWallet indyWallet;
 
-    private IndyWallet indyWallet;
-
-    public MessageReceiver(IndyWallet indyWallet){
+    public MessageReceiver(IndyWallet indyWallet) {
         Log.d(TAG, "Creating messageReceiver service");
         this.indyWallet = indyWallet;
     }
@@ -65,14 +63,14 @@ public class MessageReceiver {
             if (!handled) {
                 Log.e(TAG, "Message received of type '" + messageType + "' has no valid listeners.");
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void registerListener(MessageListener listener){
+    public void registerListener(MessageListener listener) {
         this.listeners.add(listener);
-        Log.d(TAG, listener.getClass().getSimpleName()+" listener registered");
+        Log.d(TAG, listener.getClass().getSimpleName() + " listener registered");
     }
 
 }

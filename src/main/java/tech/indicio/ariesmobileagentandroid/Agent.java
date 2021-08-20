@@ -3,53 +3,41 @@ package tech.indicio.ariesmobileagentandroid;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import org.hyperledger.indy.sdk.IndyException;
-import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 import org.hyperledger.indy.sdk.pool.Pool;
-import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import tech.indicio.ariesmobileagentandroid.connections.Connection;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
-import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
-
-    private IndyWallet indyWallet;
+    private final Storage storage;
     public Connections connections;
+    private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
     private TransportService transportsService;
-
     private Pool pool;
-
     private String ledgerConfig;
-
-    private Storage storage;
 
     /**
      * @param configJson stringified json config file {
-     *      "agentId": String - identifier for indy wallet.
-     *      "walletKey": String - agent encryption key.
-     *      "ledgerConfig": (optional) ledger config json {
-     *          ledgerName: String - Name for ledger pool.
-     *          genesisFileLocation: String - File location of downloaded genesis file.
-     *      }
-     *  }
+     *                   "agentId": String - identifier for indy wallet.
+     *                   "walletKey": String - agent encryption key.
+     *                   "ledgerConfig": (optional) ledger config json {
+     *                   ledgerName: String - Name for ledger pool.
+     *                   genesisFileLocation: String - File location of downloaded genesis file.
+     *                   }
+     *                   }
      */
     public Agent(String configJson) {
         //Load indy library
@@ -86,7 +74,7 @@ public class Agent {
 
 
         //Creating MessageReceiver and registering connections
-        try{
+        try {
             this.messageReceiver = new MessageReceiver(this.indyWallet);
             this.transportsService = new TransportService(this.messageReceiver);
             this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
@@ -101,7 +89,7 @@ public class Agent {
 
         //Test recordStorage
         try {
-            Log.d(TAG, "Record type:"+ connections.testConnectionRecord.type);
+            Log.d(TAG, "Record type:" + ConnectionRecord.type);
             this.storage.storeRecord(connections.testConnectionRecord);
             this.connections.retrieveConnectionRecord(connections.testConnectionRecord.id);
 

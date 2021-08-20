@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 public class IndySdkRejectResponse {
     private static final String TAG = "AMAA-Agent";
 
-    private String name = "IndyError";
+    private final String name = "IndyError";
     private int indyCode;
     private String indyName;
     private String message;

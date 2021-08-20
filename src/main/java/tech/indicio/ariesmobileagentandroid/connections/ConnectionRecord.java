@@ -30,17 +30,7 @@ public class ConnectionRecord extends BaseRecord {
     public DIDDoc theirDidDoc;
     public String theirLabel;
 
-    public enum ConnectionState{
-        INVITED,
-        REQUESTED,
-        RESPONDED,
-        COMPLETE
-    }
-
-    public String getType(){
-        return type;
-    }
-
+    //Constructor for Connections.createConnection
     public ConnectionRecord(
             String id,
             Date createdAt,
@@ -53,9 +43,6 @@ public class ConnectionRecord extends BaseRecord {
             DIDDoc didDoc,
             String verkey,
             String alias,
-            String theirDid,
-            DIDDoc theirDidDoc,
-            String theirLabel,
             JSONObject tags
     ) {
         this.id = id;
@@ -69,9 +56,17 @@ public class ConnectionRecord extends BaseRecord {
         this.didDoc = didDoc;
         this.verkey = verkey;
         this.alias = alias;
-        this.theirDid = theirDid;
-        this.theirDidDoc = theirDidDoc;
-        this.theirLabel = theirLabel;
         this.tags = tags;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public enum ConnectionState {
+        INVITED,
+        REQUESTED,
+        RESPONDED,
+        COMPLETE
     }
 }
