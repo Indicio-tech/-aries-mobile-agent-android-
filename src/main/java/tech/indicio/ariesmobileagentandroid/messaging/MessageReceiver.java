@@ -33,12 +33,12 @@ public class MessageReceiver {
         //Check each listener to see if it supports message type
         for(MessageListener listener : listeners){
             //Get supported message types of listener
-            HashMap<String, Class<? extends BaseMessage>> supportedMessages = listener.getSupportedMessages();
+            HashMap<String, Class<? extends BaseMessage>> supportedMessages = listener._getSupportedMessages();
             for(Map.Entry<String, Class<? extends BaseMessage>> entry : supportedMessages.entrySet()){
                 String type = entry.getKey();
                 if(type.equals(messageType)){
                     Class<? extends BaseMessage> messageClass = entry.getValue();
-                    listener.callback(
+                    listener._callback(
                             type,
                             gson.fromJson(message, messageClass)
                     );

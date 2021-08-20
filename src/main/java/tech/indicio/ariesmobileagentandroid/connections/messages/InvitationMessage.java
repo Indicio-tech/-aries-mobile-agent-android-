@@ -1,4 +1,4 @@
-package tech.indicio.ariesmobileagentandroid.connections;
+package tech.indicio.ariesmobileagentandroid.connections.messages;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -11,17 +11,25 @@ public class InvitationMessage extends BaseMessage {
 
     @SerializedName("@id")
     public String id;
-
     public String label;
-    public String did;
+    public String serviceEndpoint;
+    public String[] recipientKeys;
+    public String[] routingKeys;
+
 
     public InvitationMessage(
             String id,
             String label,
-            String did
+            String serviceEndpoint,
+            String[] recipientKeys,
+            String[] routingKeys
     ){
         this.id = id;
         this.label = label;
-        this.did = did;
+        this.serviceEndpoint = serviceEndpoint;
+        this.recipientKeys = recipientKeys;
+        this.routingKeys  = routingKeys;
     }
+
+
 }

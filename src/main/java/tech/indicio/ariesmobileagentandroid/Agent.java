@@ -3,10 +3,8 @@ package tech.indicio.ariesmobileagentandroid;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.hyperledger.indy.sdk.IndyException;
+import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
@@ -15,43 +13,22 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
-import tech.indicio.ariesmobileagentandroid.connections.InvitationMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
 
+    private IndyWallet indyWallet;
     public Connections connections;
     private MessageReceiver messageReceiver;
 
-    public String agentId;
-
-    private String walletKey;
-    private Wallet wallet;
     private Pool pool;
 
     private String ledgerConfig;
 
-    /**
-     * @return walletConfig
-     * @throws JSONException
-     */
-    private String getWalletConfig() throws JSONException {
-        return new JSONObject()
-                .put("id", this.agentId)
-                .toString();
-    }
+    private String demoQuery = "http://government.demo.indiciotech.io:3006/?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiYjgxMjE5YTAtOTQwMS00NDg1LWEzODEtYmQzMTcwYWYzN2UwIiwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vZ292ZXJubWVudC5kZW1vLmluZGljaW90ZWNoLmlvOjMwMDYiLCAicmVjaXBpZW50S2V5cyI6IFsiOVpVRG9UVnZMVW1UeGhxWnk1anBONDZScEJnb2ZENFBQWHBmZlN5eWYyclQiXSwgImxhYmVsIjogIkFydWJhIERlcGFydG1lbnQgb2YgUHVibGljIEhlYWx0aCJ9";
 
-    /**
-     * @return walletCredentials
-     * @throws JSONException
-     */
-    private String getWalletCredentials() throws JSONException {
-        return new JSONObject()
-                .put("key", this.walletKey)
-                .toString();
-    }
 
     /**
      * @param configJson stringified json config file {
@@ -64,30 +41,24 @@ public class Agent {
      *  }
      */
     public Agent(String configJson) {
-        JSONObject config;
-        try {
-            config = new JSONObject(configJson);
-            this.agentId = config.getString("agentId");
-            this.walletKey = config.getString("walletKey");
-        } catch (JSONException e) {
-            throw new Error("Invalid config JSON");
-        }
+        //Load indy library
+        Log.d(TAG, "Loading indy");
+        System.loadLibrary("indy");
+        Log.d(TAG, "Indy loaded, creating wallet...");
+
 
         try {
-            //Load indy library
-            Log.d(TAG, "Loading indy");
-            System.loadLibrary("indy");
-            Log.d(TAG, "Indy loaded, creating wallet...");
+            JSONObject config = new JSONObject(configJson);
 
-            //Load wallet
-            this.wallet = this.openWallet(getWalletConfig(), getWalletCredentials());
+            String agentId = config.getString("agentId");
+            String walletKey = config.getString("walletKey");
+            this.indyWallet = new IndyWallet(agentId, walletKey);
 
             //Load pool if exists
             if (config.has("ledgerConfig")) {
                 this.ledgerConfig = config.getString("ledgerConfig");
                 this.pool = this.openPool(this.ledgerConfig);
             }
-
         } catch (Exception e) {
             IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
             String code = rejectResponse.getCode();
@@ -102,11 +73,13 @@ public class Agent {
         //Creating MessageReceiver and registering connections
         try{
             this.messageReceiver = new MessageReceiver();
-            this.connections = new Connections();
+            this.connections = new Connections(indyWallet);
 
             this.messageReceiver.registerListener(this.connections);
 
             messageReceiver.receiveMessage(Connections.invitationJson);
+
+            connections.receiveInvitationUrl(demoQuery);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,56 +133,18 @@ public class Agent {
         }
     }
 
-    private void createWallet(String walletConfig, String walletCredentials) throws IndyException, ExecutionException, InterruptedException {
-        //Try to create wallet, will fail if wallet already exists
-        Log.d(TAG, "Creating wallet");
-        Wallet.createWallet(walletConfig, walletCredentials).get();
-        Log.d(TAG, "Wallet created");
-    }
+//    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
+//        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();
+//    }
 
-    private Wallet openWallet(String walletConfig, String walletCredentials) throws IndyException, ExecutionException, InterruptedException {
-        //204 wallet not found
-        //203 wallet already exists
-        try {
-            Wallet wallet;
-            try {
-                //Open wallet
-                Log.d(TAG, "Wallet opening");
-                wallet = Wallet.openWallet(walletConfig, walletCredentials).get();
-            } catch (Exception e) {
-                IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
-                if (rejectResponse.getCode().equals("204")) {
-                    Log.d(TAG, "Wallet not found");
-                    createWallet(walletConfig, walletCredentials);
-                    //Open wallet
-                    Log.d(TAG, "Retrying to open wallet");
-                    wallet = Wallet.openWallet(walletConfig, walletCredentials).get();
-                } else {
-                    throw e;
-                }
-            }
-            Log.d(TAG, "Wallet opened");
-            return wallet;
-        } catch (Exception e) {
-            IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
-            Log.d(TAG, "Failed to open wallet, reason: " + rejectResponse.getMessage());
-            throw e;
-        }
-
-    }
-
-    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
-        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();
-    }
-
-    public void closeAgent() throws InterruptedException, ExecutionException, IndyException {
-        if (pool != null) {
-            this.pool.closePoolLedger().get();
-        }
-        if (wallet != null) {
-            this.wallet.closeWallet().get();
-        }
-
-    }
+//    public void closeAgent() throws InterruptedException, ExecutionException, IndyException {
+//        if (pool != null) {
+//            this.pool.closePoolLedger().get();
+//        }
+//        if (wallet != null) {
+//            this.wallet.closeWallet().get();
+//        }
+//
+//    }
 }
 
