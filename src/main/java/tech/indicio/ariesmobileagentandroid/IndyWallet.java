@@ -3,8 +3,11 @@ package tech.indicio.ariesmobileagentandroid;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.gson.Gson;
+
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
+import org.hyperledger.indy.sdk.crypto.Crypto;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.wallet.Wallet;
@@ -109,4 +112,10 @@ public class IndyWallet {
         return new Pair<>(didResult.getDid(), didResult.getVerkey());
     }
 
+
+    public byte[] packMessage(String message, String[] recipientKeys, String senderVerkey) throws IndyException, ExecutionException, InterruptedException {
+        Log.d(TAG, "Packing Message");
+        Gson gson = new Gson();
+        return Crypto.packMessage(this.wallet, gson.toJson(recipientKeys), senderVerkey, message.getBytes()).get();
+    }
 }

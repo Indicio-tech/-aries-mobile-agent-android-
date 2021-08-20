@@ -10,4 +10,9 @@ public class Connection {
 
     @SerializedName("DIDDoc")
     DIDDoc didDoc;
+
+    public Connection(String did, DIDDoc didDoc) {
+        this.did = did;
+        this.didDoc = didDoc;
+    }
 }

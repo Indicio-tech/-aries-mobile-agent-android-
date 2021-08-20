@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
+import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
 
 public class Agent {
@@ -22,12 +23,12 @@ public class Agent {
     private IndyWallet indyWallet;
     public Connections connections;
     private MessageReceiver messageReceiver;
+    private MessageSender messageSender;
 
     private Pool pool;
 
     private String ledgerConfig;
 
-    private String demoQuery = "http://government.demo.indiciotech.io:3006/?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiYjgxMjE5YTAtOTQwMS00NDg1LWEzODEtYmQzMTcwYWYzN2UwIiwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vZ292ZXJubWVudC5kZW1vLmluZGljaW90ZWNoLmlvOjMwMDYiLCAicmVjaXBpZW50S2V5cyI6IFsiOVpVRG9UVnZMVW1UeGhxWnk1anBONDZScEJnb2ZENFBQWHBmZlN5eWYyclQiXSwgImxhYmVsIjogIkFydWJhIERlcGFydG1lbnQgb2YgUHVibGljIEhlYWx0aCJ9";
 
 
     /**
@@ -72,14 +73,13 @@ public class Agent {
 
         //Creating MessageReceiver and registering connections
         try{
+            this.messageSender = new MessageSender(indyWallet);
             this.messageReceiver = new MessageReceiver();
-            this.connections = new Connections(indyWallet);
 
+            this.connections = new Connections(indyWallet, this.messageSender);
             this.messageReceiver.registerListener(this.connections);
 
             messageReceiver.receiveMessage(Connections.invitationJson);
-
-            connections.receiveInvitationUrl(demoQuery);
         } catch (Exception e) {
             e.printStackTrace();
         }

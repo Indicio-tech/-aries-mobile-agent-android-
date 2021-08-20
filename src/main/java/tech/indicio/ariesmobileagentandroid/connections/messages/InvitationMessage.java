@@ -2,6 +2,8 @@ package tech.indicio.ariesmobileagentandroid.connections.messages;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.UUID;
+
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 
 public class InvitationMessage extends BaseMessage {
@@ -10,7 +12,7 @@ public class InvitationMessage extends BaseMessage {
     public final static String type = "https://didcomm.org/connections/1.0/invitation";
 
     @SerializedName("@id")
-    public String id;
+    public String id = UUID.randomUUID().toString();
     public String label;
     public String serviceEndpoint;
     public String[] recipientKeys;
