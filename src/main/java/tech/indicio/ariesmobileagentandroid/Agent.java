@@ -3,6 +3,9 @@ package tech.indicio.ariesmobileagentandroid;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.pool.Pool;
 import org.hyperledger.indy.sdk.wallet.Wallet;
@@ -11,9 +14,16 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.connections.Connections;
+import tech.indicio.ariesmobileagentandroid.connections.InvitationMessage;
+import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
+
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
+
+    public Connections connections;
+    private MessageReceiver messageReceiver;
 
     public String agentId;
 
@@ -78,7 +88,6 @@ public class Agent {
                 this.pool = this.openPool(this.ledgerConfig);
             }
 
-
         } catch (Exception e) {
             IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
             String code = rejectResponse.getCode();
@@ -87,6 +96,19 @@ public class Agent {
             Log.e(TAG, code);
             Log.e(TAG, json);
             Log.e(TAG, e.getMessage());
+        }
+
+
+        //Creating MessageReceiver and registering connections
+        try{
+            this.messageReceiver = new MessageReceiver();
+            this.connections = new Connections();
+
+            this.messageReceiver.registerListener(this.connections);
+
+            messageReceiver.receiveMessage(Connections.invitationJson);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
