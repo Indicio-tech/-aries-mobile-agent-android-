@@ -3,6 +3,8 @@ package tech.indicio.ariesmobileagentandroid;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 import org.hyperledger.indy.sdk.pool.Pool;
@@ -10,11 +12,17 @@ import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.connections.Connection;
+import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
+import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
+import tech.indicio.ariesmobileagentandroid.storage.Storage;
 import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 
@@ -31,7 +39,7 @@ public class Agent {
 
     private String ledgerConfig;
 
-
+    private Storage storage;
 
     /**
      * @param configJson stringified json config file {
@@ -72,6 +80,10 @@ public class Agent {
             Log.e(TAG, e.getMessage());
         }
 
+        //Register storage and record classes
+        this.storage = new Storage(indyWallet);
+        storage.registerRecordClass(ConnectionRecord.type, ConnectionRecord.class);
+
 
         //Creating MessageReceiver and registering connections
         try{
@@ -79,10 +91,20 @@ public class Agent {
             this.transportsService = new TransportService(this.messageReceiver);
             this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
 
-            this.connections = new Connections(this.indyWallet, this.messageSender);
+            this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
             this.messageReceiver.registerListener(this.connections);
 
             //Register Transports
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Test recordStorage
+        try {
+            Log.d(TAG, "Record type:"+ connections.testConnectionRecord.type);
+            this.storage.storeRecord(connections.testConnectionRecord);
+            this.connections.retrieveConnectionRecord(connections.testConnectionRecord.id);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,6 +157,7 @@ public class Agent {
             throw e;
         }
     }
+
 
 //    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
 //        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();

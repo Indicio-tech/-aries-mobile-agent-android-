@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
+import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 public class MessageSender {
@@ -27,9 +28,14 @@ public class MessageSender {
         this.transportService = transportService;
     }
 
-    //TODO: Replace ourKey, endpoint, recipientKeys, and routingKeys with ConnectionRecord
-    public void sendMessage(BaseMessage message, String endpoint, String senderVerkey, String[] recipientKeys, String[] routingKeys) throws JSONException, InterruptedException, ExecutionException, IndyException {
+    //TODO: Replace5, endpoint, recipientKeys, and routingKeys with ConnectionRecord
+    public void sendMessage(BaseMessage message, ConnectionRecord connectionRecord) throws JSONException, InterruptedException, ExecutionException, IndyException {
 
+        //TODO: Specify services to use?
+        String endpoint = connectionRecord.theirDidDoc.service[0].serviceEndpoint;
+        String[] recipientKeys = connectionRecord.theirDidDoc.service[0].recipientKeys;
+
+        String senderVerkey = connectionRecord.verkey;
 
         Gson gson = new GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).create();
         String jsonMessage = gson.toJson(message);

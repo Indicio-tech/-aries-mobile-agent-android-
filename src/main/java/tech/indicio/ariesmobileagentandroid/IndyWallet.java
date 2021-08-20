@@ -10,11 +10,14 @@ import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
 import org.hyperledger.indy.sdk.crypto.Crypto;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
+import org.hyperledger.indy.sdk.non_secrets.WalletRecord;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
+
+import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 
 public class IndyWallet {
     private static final String TAG = "AMAA-IndyWallet";
@@ -123,4 +126,27 @@ public class IndyWallet {
         Log.d(TAG, "Unpacking Message");
         return Crypto.unpackMessage(this.wallet, messageBytes).get();
     }
+
+
+    /**
+     *
+     * @param type
+     * @param id
+     * @param value
+     * @param tags
+     */
+    public void storeRecord(String type, String id, String value, JSONObject tags) throws IndyException {
+        WalletRecord.add(wallet, type, id, value, tags.toString());
+    }
+
+    public String retrieveRecord(String type, String id) throws JSONException, IndyException, ExecutionException, InterruptedException {
+        String config = new JSONObject()
+                .put("retrieveType", true)
+                .put("retrieveValue", true)
+                .put("retrieveTags", true)
+                .toString();
+        return WalletRecord.get(wallet, type, id, config).get();
+    }
+
+
 }
