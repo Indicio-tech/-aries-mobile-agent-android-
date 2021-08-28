@@ -4,6 +4,8 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
@@ -15,6 +17,7 @@ import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
 public class IndyWallet {
@@ -113,9 +116,17 @@ public class IndyWallet {
 
 
     public byte[] packMessage(String message, String[] recipientKeys, String senderVerkey) throws IndyException, ExecutionException, InterruptedException {
-        Log.d(TAG, "Packing Message");
+        Log.d(TAG, "Packing Message: ");
+
         Gson gson = new Gson();
-        return Crypto.packMessage(this.wallet, gson.toJson(recipientKeys), senderVerkey, message.getBytes()).get();
+        String recipientKeysString = gson.toJson(recipientKeys);
+
+        Log.d(TAG, "Message: "+message);
+        Log.d(TAG, "RecipientKeys: "+recipientKeysString);
+        Log.d(TAG, "senderVerkey: "+senderVerkey);
+
+
+        return Crypto.packMessage(this.wallet, recipientKeysString, senderVerkey, message.getBytes(StandardCharsets.UTF_8)).get();
     }
 
     public byte[] unpackMessage(byte[] messageBytes) throws IndyException, ExecutionException, InterruptedException {
@@ -130,8 +141,18 @@ public class IndyWallet {
      * @param value
      * @param tags
      */
-    public void storeRecord(String type, String id, String value, JSONObject tags) throws IndyException {
-        WalletRecord.add(wallet, type, id, value, tags.toString());
+    public void storeRecord(String type, String id, String value, JsonObject tags) throws IndyException, ExecutionException, InterruptedException {
+
+        //Tags need to be saved as a string
+        for(String key : tags.keySet()){
+             JsonElement property = tags.get(key);
+             tags.remove(key);
+             tags.addProperty(key, property.toString());
+        }
+
+        Log.d(TAG, "Type:\n\t"+type+"\nID:\n\t"+id+"\nValue:\n\t"+value+"\nTags:\n\t"+tags.toString());
+
+        WalletRecord.add(wallet, type, id, value, tags.toString()).get();
     }
 
     public String retrieveRecord(String type, String id) throws JSONException, IndyException, ExecutionException, InterruptedException {
@@ -141,6 +162,23 @@ public class IndyWallet {
                 .put("retrieveTags", true)
                 .toString();
         return WalletRecord.get(wallet, type, id, config).get();
+    }
+
+    public void updateRecord(String type, String id, String value, JsonObject tags) throws IndyException, ExecutionException, InterruptedException {
+
+        //Tags need to be saved as a string
+        for(String key : tags.keySet()){
+            JsonElement property = tags.get(key);
+            tags.remove(key);
+            tags.addProperty(key, property.toString());
+        }
+
+        WalletRecord.updateValue(wallet, type, id, value).get();
+        WalletRecord.updateTags(wallet, type, id, tags.toString()).get();
+    }
+
+    public boolean verify(String signerVerkey, byte[] message, byte[] signature) throws IndyException, ExecutionException, InterruptedException {
+        return Crypto.cryptoVerify(signerVerkey, message, signature).get();
     }
 
 

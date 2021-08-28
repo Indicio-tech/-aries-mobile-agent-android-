@@ -86,17 +86,6 @@ public class Agent {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //Test recordStorage
-        try {
-            Log.d(TAG, "Record type:" + ConnectionRecord.type);
-            this.storage.storeRecord(connections.testConnectionRecord);
-            this.connections.retrieveConnectionRecord(connections.testConnectionRecord.id);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
 

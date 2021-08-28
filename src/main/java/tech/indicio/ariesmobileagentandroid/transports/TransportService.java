@@ -10,9 +10,11 @@ public class TransportService {
 
     private final MessageReceiver messageReceiver;
     private final HTTPTransport httpTransport;
+    private final WSClientTransport wsClientTransport;
 
     public TransportService(MessageReceiver messageReceiver) {
         this.messageReceiver = messageReceiver;
+        this.wsClientTransport = new WSClientTransport(this.messageReceiver);
         this.httpTransport = new HTTPTransport(this.messageReceiver);
     }
 
@@ -22,7 +24,7 @@ public class TransportService {
 
             //TODO: filter endpoint url by protocol and determine which transport to use
             //TODO: Alter inbound message passing strategy
-            this.httpTransport.send(message, endpoint);
+            this.wsClientTransport.send(message, endpoint);
         } catch (Exception e) {
             e.printStackTrace();
         }

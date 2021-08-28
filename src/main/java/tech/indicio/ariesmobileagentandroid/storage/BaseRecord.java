@@ -1,11 +1,11 @@
 package tech.indicio.ariesmobileagentandroid.storage;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public abstract class BaseRecord {
     public static String type;
     public String id;
-    public JSONObject tags;
+    public JsonObject tags;
 
     public abstract String getType();
 }

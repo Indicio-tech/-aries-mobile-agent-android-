@@ -6,6 +6,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
@@ -16,14 +17,18 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.IndySdkRejectResponse;
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.Authentication;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.DIDDoc;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.IndyService;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.PublicKey;
 import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionRequest;
+import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionResponse;
 import tech.indicio.ariesmobileagentandroid.connections.messages.InvitationMessage;
+import tech.indicio.ariesmobileagentandroid.connections.messages.TrustPingMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
+import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageListener;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
@@ -36,47 +41,24 @@ public class Connections extends MessageListener {
     private final Storage storage;
     //Add supported message classes in constructor.
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
-    //Test ConnectionRecord
-    public ConnectionRecord testConnectionRecord = new ConnectionRecord(
-            "uniqueID",
-            new Date(),
-            new InvitationMessage(
-                    "invitationID",
-                    "Invitation label!",
-                    "serviceEndpoint",
-                    new String[1],
-                    new String[1]
-            ),
-            "unique threadId",
-            ConnectionRecord.ConnectionState.COMPLETE,
-            true,
-            "invitee",
-            "ourDIDDocId",
-            new DIDDoc(
-                    "context",
-                    "ourDIDDocId",
-                    new PublicKey[0],
-                    new Authentication[0],
-                    new IndyService[0]
-            ),
-            "ourVerkey",
-            "ourAlias",
-            new JSONObject()
-    );
 
     public Connections(IndyWallet indyWallet, MessageSender messageSender, Storage storage) {
         Log.d(TAG, "Creating Connections service");
-        this.supportedMessages.put(ConnectionRequest.type, ConnectionRequest.class);
         this.indyWallet = indyWallet;
         this.messageSender = messageSender;
         this.storage = storage;
+
+        //Register supported messages
+        this.supportedMessages.put(ConnectionRequest.type, ConnectionRequest.class);
+        this.supportedMessages.put(ConnectionResponse.type, ConnectionResponse.class);
+
     }
 
     public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
         return this.supportedMessages;
     }
 
-    public void receiveInvitationUrl(String invitationUrl) throws Exception {
+    public ConnectionRecord receiveInvitationUrl(String invitationUrl, boolean autoAcceptConnection) throws Exception {
         Log.d(TAG, "Decoding invitation url: " + invitationUrl);
         Uri invitationUri = Uri.parse(invitationUrl);
         String encodedInvitation = invitationUri.getQueryParameter("c_i");
@@ -88,21 +70,48 @@ public class Connections extends MessageListener {
         InvitationMessage invitationMessage = gson.fromJson(decodedInvitation, InvitationMessage.class);
         Log.d(TAG, "Invitation message decoded:\n" + decodedInvitation);
 
-        sendRequest(invitationMessage);
+        JsonObject recordTags = new JsonObject();
+
+        recordTags.addProperty("invitationKey",
+                invitationMessage.recipientKeys != null && invitationMessage.recipientKeys[0] != null
+        );
+
+        ConnectionRecord connectionRecord = new ConnectionRecord(
+                UUID.randomUUID().toString(),
+                new Date(),
+                invitationMessage,
+                ConnectionRecord.ConnectionState.INVITED,
+                autoAcceptConnection,
+                "invitee",
+                "AMAA Agent",
+                recordTags
+        );
+
+        storage.storeRecord(connectionRecord);
+
+        return sendRequest(connectionRecord);
     }
 
-    private void sendRequest(InvitationMessage invitationMessage) throws InterruptedException, ExecutionException, IndyException, JSONException {
+    //Default autoAcceptConnection to true
+    public ConnectionRecord receiveInvitationUrl(String invitationUrl) throws Exception {
+        return receiveInvitationUrl(invitationUrl, true);
+    }
+
+
+    private ConnectionRecord sendRequest(ConnectionRecord connectionRecord) throws InterruptedException, ExecutionException, IndyException, JSONException {
         Log.d(TAG, "Creating Connection Request");
 
-        ConnectionRecord connectionRecord = createConnection(invitationMessage);
+        connectionRecord = createConnection(connectionRecord);
         Connection connection = new Connection(connectionRecord.didDoc.id, connectionRecord.didDoc);
 
-        ConnectionRequest connectionRequest = new ConnectionRequest(connectionRecord.alias, connection);
+        ConnectionRequest connectionRequest = new ConnectionRequest(connectionRecord.label, connection, connectionRecord.id);
 
         this.messageSender.sendMessage(connectionRequest, connectionRecord);
+
+        return connectionRecord;
     }
 
-    private ConnectionRecord createConnection(InvitationMessage invitationMessage) throws InterruptedException, ExecutionException, IndyException, JSONException {
+    private ConnectionRecord createConnection(ConnectionRecord connectionRecord) throws InterruptedException, ExecutionException, IndyException {
         try {
             Log.d(TAG, "Creating Connection");
             Log.d(TAG, "Creating DID and DIDDoc");
@@ -113,27 +122,12 @@ public class Connections extends MessageListener {
             DIDDoc didDoc = DIDDoc.createDefaultDIDDoc(did, verkey);
             Log.d(TAG, "DIDDoc Created");
 
-            //TODO determine when/where to store connectionRecord..
-            ConnectionRecord connectionRecord = new ConnectionRecord(
-                    UUID.randomUUID().toString(),
-                    new Date(),
-                    invitationMessage,
-                    UUID.randomUUID().toString(),
-                    ConnectionRecord.ConnectionState.REQUESTED,
-                    true,
-                    "invitee",
-                    did,
-                    didDoc,
-                    verkey,
-                    "AMAA Agent",
-                    new JSONObject()
-            );
-
-            //Log connectionRecord
-            Gson gson = new Gson();
-            String stringRecord = new JSONObject(gson.toJson(connectionRecord)).toString(4);
-            Log.d(TAG, "New connection record created:\n" + stringRecord);
-
+            //Update connection record
+            connectionRecord.state = ConnectionRecord.ConnectionState.REQUESTED;
+            connectionRecord.did = did;
+            connectionRecord.didDoc = didDoc;
+            connectionRecord.verkey = verkey;
+            storage.updateRecord(connectionRecord);
 
             return connectionRecord;
         } catch (Exception e) {
@@ -148,11 +142,53 @@ public class Connections extends MessageListener {
             case InvitationMessage.type:
                 invitationMessageHandler(message);
                 break;
+            case ConnectionResponse.type:
+                processResponse((ConnectionResponse) message);
+                break;
         }
     }
 
     private void invitationMessageHandler(BaseMessage message) {
 
+    }
+
+    private void processResponse(ConnectionResponse connectionResponse){
+        try {
+            ConnectionRecord connectionRecord = this.retrieveConnectionRecord(connectionResponse.thread.thid);
+
+            String signerVerkey = connectionResponse.signedConnection.signer;
+            String invitationVerkey = connectionRecord.invitation.recipientKeys[0];
+
+            if(!signerVerkey.equals(invitationVerkey)){
+                throw new Error("Connection in connection response is not signed with same key as recipient key in invitation");
+            }
+
+            connectionRecord.theirDidDoc = connectionResponse.connection.didDoc;
+            connectionRecord.theirDid = connectionResponse.connection.did;
+            connectionRecord.threadId = connectionResponse.thread.thid;
+            connectionRecord.state = ConnectionRecord.ConnectionState.RESPONDED;
+            storage.updateRecord(connectionRecord);
+
+            //Send ack
+            TrustPingMessage trustPing = new TrustPingMessage();
+            this.messageSender.sendMessage(trustPing, connectionRecord);
+            connectionRecord.state = ConnectionRecord.ConnectionState.COMPLETE;
+            storage.updateRecord(connectionRecord);
+
+            BasicMessage bm =  new BasicMessage("Hello there new connection!");
+            this.messageSender.sendMessage(bm, connectionRecord);
+
+        } catch (IndyException e) {
+            IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
+            String code = rejectResponse.getCode();
+            String json = rejectResponse.toJson();
+            Log.e(TAG, "INDY ERROR");
+            Log.e(TAG, code);
+            Log.e(TAG, json);
+            Log.e(TAG, e.getMessage());
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public ConnectionRecord retrieveConnectionRecord(String id) throws IndyException, ExecutionException, JSONException, InterruptedException {

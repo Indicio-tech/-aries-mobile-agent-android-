@@ -9,6 +9,7 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
@@ -32,18 +33,22 @@ public class MessageSender {
 
         //TODO: Specify services to use?
         String endpoint = connectionRecord.invitation.serviceEndpoint;
-        String[] recipientKeys = connectionRecord.didDoc.service[0].recipientKeys;
+        String[] recipientKeys = connectionRecord.invitation.recipientKeys;
 
         String senderVerkey = connectionRecord.verkey;
 
         Gson gson = new GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).create();
         String jsonMessage = gson.toJson(message);
+        Log.d(TAG, "GSON object: "+ jsonMessage);
 
+        //Just for logging
         JSONObject logMessage = new JSONObject(jsonMessage);
         String prettyMessage = logMessage.toString(4).replaceAll("\\\\", "");
         Log.d(TAG, "Sending Message of type '" + logMessage.getString("@type") + "' to Endpoint '" + endpoint + "', \n message: " + prettyMessage);
 
+        //Pack with indy
         byte[] packedMessage = this.indyWallet.packMessage(jsonMessage, recipientKeys, senderVerkey);
+        Log.d(TAG, "OUTBOUND MESSAGE:"+jsonMessage);
 
         this.transportService.send(packedMessage, endpoint);
     }
