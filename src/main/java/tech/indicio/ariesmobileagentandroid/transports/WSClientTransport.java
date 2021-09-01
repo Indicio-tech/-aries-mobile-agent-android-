@@ -27,7 +27,10 @@ public class WSClientTransport {
 
     public void send(byte[] message, String endpoint){
         WebSocket socket = getSocket(endpoint);
+        Log.d(TAG, "Sending message to "+endpoint);
         socket.send(new ByteString(message));
+        while(socket.queueSize() > 0){};
+        Log.d(TAG, "Message sent");
     }
 
     private WebSocket getSocket(String endpoint){
@@ -36,7 +39,7 @@ public class WSClientTransport {
         }else{
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(endpoint).build();
-            WebSocketListener listener = new AriesSocketListener();
+            WebSocketListener listener = new AriesSocketListener(endpoint);
             WebSocket ws = client.newWebSocket(request,listener);
             socketMap.put(endpoint, ws);
             return ws;
@@ -44,8 +47,14 @@ public class WSClientTransport {
     }
 
     private class AriesSocketListener extends WebSocketListener {
+        public String endpoint;
+
+        AriesSocketListener(String endpoint){
+            this.endpoint = endpoint;
+        }
+
         public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            Log.d(TAG,"Socket has been closed: "+code+": "+reason);
+            Log.d(TAG,"Socket for endpoint "+endpoint+" has been closed: "+code+": "+reason);
         }
 
         public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
@@ -54,21 +63,21 @@ public class WSClientTransport {
 
 
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-            super.onFailure(webSocket, t, response);
+            Log.d(TAG,"Websocket failure for endpoint: "+endpoint+"\n"+t.getMessage());
         }
 
         public void onMessage(@NotNull WebSocket webSocket, @NotNull String message) {
-            Log.d(TAG, "WS Message received");
+            Log.d(TAG, "WS String message received for endpoint: "+endpoint);
             messageReceiver.receiveMessage(message.getBytes());
         }
 
         public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString message) {
-            Log.d(TAG, "WS Message received");
+            Log.d(TAG, "WS ByteString message received for endpoint: "+endpoint);
             messageReceiver.receiveMessage(message.toByteArray());
         }
 
         public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-            Log.d(TAG, "Socket opened");
+            Log.d(TAG, "Socket opened for endpoint: "+endpoint);
         }
     }
 

@@ -30,10 +30,17 @@ public class MessageSender {
 
     //TODO: Replace5, endpoint, recipientKeys, and routingKeys with ConnectionRecord
     public void sendMessage(BaseMessage message, ConnectionRecord connectionRecord) throws JSONException, InterruptedException, ExecutionException, IndyException {
+        String endpoint;
+        String[] recipientKeys;
 
         //TODO: Specify services to use?
-        String endpoint = connectionRecord.invitation.serviceEndpoint;
-        String[] recipientKeys = connectionRecord.invitation.recipientKeys;
+        if(connectionRecord.theirDidDoc != null){
+            endpoint = connectionRecord.theirDidDoc.service[1].serviceEndpoint;
+            recipientKeys = connectionRecord.theirDidDoc.service[1].recipientKeys;
+        }else{
+            endpoint = connectionRecord.invitation.serviceEndpoint;
+            recipientKeys = connectionRecord.invitation.recipientKeys;
+        }
 
         String senderVerkey = connectionRecord.verkey;
 

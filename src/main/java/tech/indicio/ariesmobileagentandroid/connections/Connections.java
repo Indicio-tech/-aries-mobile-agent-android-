@@ -10,8 +10,8 @@ import com.google.gson.JsonObject;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -19,10 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndySdkRejectResponse;
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
-import tech.indicio.ariesmobileagentandroid.connections.diddoc.Authentication;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.DIDDoc;
-import tech.indicio.ariesmobileagentandroid.connections.diddoc.IndyService;
-import tech.indicio.ariesmobileagentandroid.connections.diddoc.PublicKey;
 import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionRequest;
 import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionResponse;
 import tech.indicio.ariesmobileagentandroid.connections.messages.InvitationMessage;
@@ -31,6 +28,7 @@ import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageListener;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
+import tech.indicio.ariesmobileagentandroid.connections.handlers.ConnectionStateHandler;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
 public class Connections extends MessageListener {
@@ -42,6 +40,8 @@ public class Connections extends MessageListener {
     //Add supported message classes in constructor.
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
 
+    private HashMap<String, ConnectionStateHandler> connectionStateHandlers = new HashMap<>();
+
     public Connections(IndyWallet indyWallet, MessageSender messageSender, Storage storage) {
         Log.d(TAG, "Creating Connections service");
         this.indyWallet = indyWallet;
@@ -52,6 +52,14 @@ public class Connections extends MessageListener {
         this.supportedMessages.put(ConnectionRequest.type, ConnectionRequest.class);
         this.supportedMessages.put(ConnectionResponse.type, ConnectionResponse.class);
 
+    }
+
+    public void registerConnectionStateHandler(ConnectionStateHandler handler){
+        connectionStateHandlers.put(handler.id, handler);
+    }
+
+    public void removeConnectionStateHandler(ConnectionStateHandler handler){
+        connectionStateHandlers.remove(handler.id);
     }
 
     public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
@@ -111,7 +119,7 @@ public class Connections extends MessageListener {
         return connectionRecord;
     }
 
-    private ConnectionRecord createConnection(ConnectionRecord connectionRecord) throws InterruptedException, ExecutionException, IndyException {
+    private ConnectionRecord createConnection(ConnectionRecord connectionRecord) throws InterruptedException, ExecutionException, IndyException, JSONException {
         try {
             Log.d(TAG, "Creating Connection");
             Log.d(TAG, "Creating DID and DIDDoc");
@@ -139,17 +147,10 @@ public class Connections extends MessageListener {
     @Override
     public void _callback(String type, BaseMessage message) {
         switch (type) {
-            case InvitationMessage.type:
-                invitationMessageHandler(message);
-                break;
             case ConnectionResponse.type:
                 processResponse((ConnectionResponse) message);
                 break;
         }
-    }
-
-    private void invitationMessageHandler(BaseMessage message) {
-
     }
 
     private void processResponse(ConnectionResponse connectionResponse){
@@ -170,13 +171,13 @@ public class Connections extends MessageListener {
             storage.updateRecord(connectionRecord);
 
             //Send ack
-            TrustPingMessage trustPing = new TrustPingMessage();
+            TrustPingMessage trustPing = new TrustPingMessage(true, "Connection ack", "all");
             this.messageSender.sendMessage(trustPing, connectionRecord);
             connectionRecord.state = ConnectionRecord.ConnectionState.COMPLETE;
             storage.updateRecord(connectionRecord);
 
-            BasicMessage bm =  new BasicMessage("Hello there new connection!");
-            this.messageSender.sendMessage(bm, connectionRecord);
+//            BasicMessage bm =  new BasicMessage("Hello there new connection!");
+//            this.messageSender.sendMessage(bm, connectionRecord);
 
         } catch (IndyException e) {
             IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
@@ -192,11 +193,8 @@ public class Connections extends MessageListener {
     }
 
     public ConnectionRecord retrieveConnectionRecord(String id) throws IndyException, ExecutionException, JSONException, InterruptedException {
-        try {
-            return (ConnectionRecord) storage.retrieveRecord(ConnectionRecord.type, id);
-        } catch (Exception e) {
-            throw e;
-        }
+        return (ConnectionRecord) storage.retrieveRecord(ConnectionRecord.type, id);
     }
+
 
 }

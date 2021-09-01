@@ -20,8 +20,9 @@ import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
-    private final Storage storage;
+    private Storage storage;
     public Connections connections;
+    public EventEmitter eventEmitter;
     private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;

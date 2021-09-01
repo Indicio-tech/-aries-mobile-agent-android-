@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.TimingDecorator;
+import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class TrustPingMessage extends BaseMessage {
     //These 2 are required
@@ -24,10 +25,15 @@ public class TrustPingMessage extends BaseMessage {
     @SerializedName("~timing")
     public TimingDecorator timing;
 
-    public TrustPingMessage(boolean responseRequested, String comment){
+    //TODO: Replace with a decorator
+    @SerializedName("~transport")
+    public TransportDecorator transport;
+
+    public TrustPingMessage(boolean responseRequested, String comment, String returnRoute){
         this.id = UUID.randomUUID().toString();
         this.responseRequested = responseRequested;
         this.comment = comment;
+        this.transport = new TransportDecorator(returnRoute);
     }
 
     public TrustPingMessage(){

@@ -12,7 +12,7 @@ import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecora
 
 public class ConnectionResponse extends BaseMessage {
     @SerializedName("@type")
-    public final static String type = "https://didcomm.org/connections/1.0/response";
+    public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/response";
 
     @SerializedName("@id")
     public String id;
@@ -21,6 +21,8 @@ public class ConnectionResponse extends BaseMessage {
     public ThreadDecorator thread;
 
     public String label;
+
+
     public Connection connection;
 
     @SerializedName("connection~sig")
