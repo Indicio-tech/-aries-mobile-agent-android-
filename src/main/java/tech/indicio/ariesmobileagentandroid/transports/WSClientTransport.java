@@ -14,10 +14,12 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
+import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
 public class WSClientTransport {
     private static final String TAG = "AMAA-WSClientTransport";
     private MessageReceiver messageReceiver;
+    private MessageSender messageSender;
 
     private HashMap<String, WebSocket> socketMap = new HashMap();
 
@@ -63,7 +65,16 @@ public class WSClientTransport {
 
 
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-            Log.d(TAG,"Websocket failure for endpoint: "+endpoint+"\n"+t.getMessage());
+            Log.d(TAG, "Websocket failure for endpoint: " + endpoint + "\n" + t.getMessage());
+
+            //OnFail recreate socket
+            socketMap.remove(endpoint);
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(endpoint).build();
+            WebSocketListener listener = new AriesSocketListener(endpoint);
+            WebSocket ws = client.newWebSocket(request, listener);
+            socketMap.put(endpoint, ws);
+
         }
 
         public void onMessage(@NotNull WebSocket webSocket, @NotNull String message) {
@@ -78,6 +89,7 @@ public class WSClientTransport {
 
         public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
             Log.d(TAG, "Socket opened for endpoint: "+endpoint);
+
         }
     }
 

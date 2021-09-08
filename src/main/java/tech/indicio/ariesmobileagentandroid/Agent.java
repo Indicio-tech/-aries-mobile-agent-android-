@@ -10,8 +10,10 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.basicMessaging.BasicMessaging;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
+import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
@@ -22,7 +24,8 @@ public class Agent {
     private static final String TAG = "AMAA-Agent";
     private Storage storage;
     public Connections connections;
-    public EventEmitter eventEmitter;
+    public BasicMessaging basicMessaging;
+    public AriesEmitter eventEmitter;
     private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
@@ -35,10 +38,10 @@ public class Agent {
      *                   "agentId": String - identifier for indy wallet.
      *                   "walletKey": String - agent encryption key.
      *                   "ledgerConfig": (optional) ledger config json {
-     *                   ledgerName: String - Name for ledger pool.
-     *                   genesisFileLocation: String - File location of downloaded genesis file.
+     *                      ledgerName: String - Name for ledger pool.
+     *                      genesisFileLocation: String - File location of downloaded genesis file.
      *                   }
-     *                   }
+     *              }
      */
     public Agent(String configJson) {
         //Load indy library
@@ -69,8 +72,11 @@ public class Agent {
             Log.e(TAG, e.getMessage());
         }
 
+        //Create eventEmitter object
+        this.eventEmitter = new AriesEmitter();
+
         //Register storage and record classes
-        this.storage = new Storage(indyWallet);
+        this.storage = new Storage(indyWallet, eventEmitter);
         storage.registerRecordClass(ConnectionRecord.type, ConnectionRecord.class);
 
 
@@ -81,7 +87,9 @@ public class Agent {
             this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
 
             this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
+            this.basicMessaging = new BasicMessaging(this.indyWallet, this.messageSender, this.storage, this.connections);
             this.messageReceiver.registerListener(this.connections);
+            this.messageReceiver.registerListener(this.basicMessaging);
 
             //Register Transports
         } catch (Exception e) {

@@ -36,8 +36,9 @@ public class TrustPingMessage extends BaseMessage {
         this.transport = new TransportDecorator(returnRoute);
     }
 
-    public TrustPingMessage(){
+    public TrustPingMessage(String returnRoute) {
         this.id = UUID.randomUUID().toString();
+        this.transport = new TransportDecorator(returnRoute);
     }
 
 }

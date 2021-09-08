@@ -20,15 +20,14 @@ import java.util.concurrent.ExecutionException;
 import tech.indicio.ariesmobileagentandroid.IndySdkRejectResponse;
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.DIDDoc;
+import tech.indicio.ariesmobileagentandroid.connections.handlers.ConnectionStateHandler;
 import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionRequest;
 import tech.indicio.ariesmobileagentandroid.connections.messages.ConnectionResponse;
 import tech.indicio.ariesmobileagentandroid.connections.messages.InvitationMessage;
 import tech.indicio.ariesmobileagentandroid.connections.messages.TrustPingMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageListener;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
-import tech.indicio.ariesmobileagentandroid.connections.handlers.ConnectionStateHandler;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
 public class Connections extends MessageListener {
@@ -145,7 +144,7 @@ public class Connections extends MessageListener {
     }
 
     @Override
-    public void _callback(String type, BaseMessage message) {
+    public void _callback(String type, BaseMessage message, String senderVerkey) {
         switch (type) {
             case ConnectionResponse.type:
                 processResponse((ConnectionResponse) message);
@@ -168,10 +167,11 @@ public class Connections extends MessageListener {
             connectionRecord.theirDid = connectionResponse.connection.did;
             connectionRecord.threadId = connectionResponse.thread.thid;
             connectionRecord.state = ConnectionRecord.ConnectionState.RESPONDED;
+            connectionRecord.tags.addProperty("verkey", connectionResponse.connection.didDoc.service[0].recipientKeys[0]);
             storage.updateRecord(connectionRecord);
 
             //Send ack
-            TrustPingMessage trustPing = new TrustPingMessage(true, "Connection ack", "all");
+            TrustPingMessage trustPing = new TrustPingMessage(false, "Connection ack", "all");
             this.messageSender.sendMessage(trustPing, connectionRecord);
             connectionRecord.state = ConnectionRecord.ConnectionState.COMPLETE;
             storage.updateRecord(connectionRecord);
@@ -187,13 +187,35 @@ public class Connections extends MessageListener {
             Log.e(TAG, code);
             Log.e(TAG, json);
             Log.e(TAG, e.getMessage());
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public ConnectionRecord retrieveConnectionRecord(String id) throws IndyException, ExecutionException, JSONException, InterruptedException {
         return (ConnectionRecord) storage.retrieveRecord(ConnectionRecord.type, id);
+    }
+
+    public ConnectionRecord retrieveConnectionRecordByVerkey(String verkey) throws IndyException, ExecutionException, InterruptedException, JSONException {
+        JsonObject query = new JsonObject();
+        query.addProperty("verkey", verkey);
+
+        ArrayList<String> recordList = indyWallet.searchByQuery(ConnectionRecord.type, query, 1);
+        if (recordList.isEmpty()) {
+            throw new Error("Could not find any matching records");
+        }
+        Gson gson = new Gson();
+        return gson.fromJson(recordList.get(0), ConnectionRecord.class);
+    }
+
+    public ConnectionRecord[] retrieveAllConnectionRecords() throws IndyException, ExecutionException, InterruptedException, JSONException {
+        ArrayList<String> recordStringList = indyWallet.searchByQuery(ConnectionRecord.type, new JsonObject(), 100);
+        ConnectionRecord[] connections = new ConnectionRecord[recordStringList.size()];
+        Gson gson = new Gson();
+        for (int i = 0; i < recordStringList.size(); i++) {
+            connections[i] = gson.fromJson(recordStringList.get(i), ConnectionRecord.class);
+        }
+        return connections;
     }
 
 

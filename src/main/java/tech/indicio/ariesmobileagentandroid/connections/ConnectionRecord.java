@@ -2,8 +2,6 @@ package tech.indicio.ariesmobileagentandroid.connections;
 
 import com.google.gson.JsonObject;
 
-import org.json.JSONObject;
-
 import java.util.Date;
 
 import tech.indicio.ariesmobileagentandroid.connections.diddoc.DIDDoc;
@@ -11,7 +9,7 @@ import tech.indicio.ariesmobileagentandroid.connections.messages.InvitationMessa
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 
 public class ConnectionRecord extends BaseRecord {
-    public static String type = "connection";
+    public static final String type = "connection";
 
     //Record info
     public Date createdAt;

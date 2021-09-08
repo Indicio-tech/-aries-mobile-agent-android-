@@ -31,12 +31,14 @@ public class MessageReceiver {
 
     public void receiveMessage(byte[] packedPackage) {
         try {
-            Log.d(TAG, "Packed message: "+new String(packedPackage, StandardCharsets.UTF_8));
+            Log.d(TAG, "Packed message: " + new String(packedPackage, StandardCharsets.UTF_8));
 
             //Unpacking Message
             byte[] unpackedPackage = this.indyWallet.unpackMessage(packedPackage);
             String packageString = new String(unpackedPackage);
             JSONObject jsonPackage = new JSONObject(packageString);
+
+            Log.d(TAG, "unpacked message: " + packageString);
 
             Object message = jsonPackage.get("message");
             String messageString = parseDecorators(message.toString());
@@ -60,7 +62,8 @@ public class MessageReceiver {
                         Class<? extends BaseMessage> messageClass = entry.getValue();
                         listener._callback(
                                 type,
-                                gson.fromJson(messageString, messageClass)
+                                gson.fromJson(messageString, messageClass),
+                                (String) jsonPackage.get("sender_verkey")
                         );
                         handled = true;
                     }

@@ -9,7 +9,6 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
@@ -38,6 +37,7 @@ public class MessageSender {
             endpoint = connectionRecord.theirDidDoc.service[1].serviceEndpoint;
             recipientKeys = connectionRecord.theirDidDoc.service[1].recipientKeys;
         }else{
+            Log.e(TAG, new Gson().toJson(connectionRecord));
             endpoint = connectionRecord.invitation.serviceEndpoint;
             recipientKeys = connectionRecord.invitation.recipientKeys;
         }

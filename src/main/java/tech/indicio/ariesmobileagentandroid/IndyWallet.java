@@ -4,8 +4,10 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds;
@@ -13,11 +15,13 @@ import org.hyperledger.indy.sdk.crypto.Crypto;
 import org.hyperledger.indy.sdk.did.Did;
 import org.hyperledger.indy.sdk.did.DidResults;
 import org.hyperledger.indy.sdk.non_secrets.WalletRecord;
+import org.hyperledger.indy.sdk.non_secrets.WalletSearch;
 import org.hyperledger.indy.sdk.wallet.Wallet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class IndyWallet {
@@ -146,8 +150,8 @@ public class IndyWallet {
         //Tags need to be saved as a string
         for(String key : tags.keySet()){
              JsonElement property = tags.get(key);
-             tags.remove(key);
-             tags.addProperty(key, property.toString());
+            tags.remove(key);
+            tags.addProperty(key, property.toString().replaceAll("\"", ""));
         }
 
         Log.d(TAG, "Type:\n\t"+type+"\nID:\n\t"+id+"\nValue:\n\t"+value+"\nTags:\n\t"+tags.toString());
@@ -164,17 +168,52 @@ public class IndyWallet {
         return WalletRecord.get(wallet, type, id, config).get();
     }
 
+
+    /**
+     * @param type  Record type
+     * @param query MongoDB style query to wallet record tags:
+     *              {
+     *              "tagName": "tagValue",
+     *              $or: {
+     *              "tagName2": { $regex: 'pattern' },
+     *              "tagName3": { $gte: '123' },
+     *              }
+     *              }
+     * @return ArrayList of search results
+     */
+    public ArrayList<String> searchByQuery(String type, JsonObject query, int limit) throws IndyException, JSONException, ExecutionException, InterruptedException {
+        Gson gson = new Gson();
+        JsonObject options = new JsonObject();
+        options.addProperty("limit", limit);
+
+        WalletSearch ws = WalletSearch.open(wallet, type, gson.toJson(query), gson.toJson(options)).get();
+        ArrayList<String> queryResults = new ArrayList<>();
+
+        String fetchedRecords = ws.fetchNextRecords(wallet, limit).get();
+        JsonArray json = new JsonParser().parse(fetchedRecords).getAsJsonObject().get("records").getAsJsonArray();
+
+        for (JsonElement record : json) {
+            String stringJson = gson.toJson(record);
+            String stringRecord = new JsonParser().parse(stringJson).getAsJsonObject().get("value").getAsString();
+            Log.d(TAG, stringRecord);
+            queryResults.add(stringRecord);
+        }
+        return queryResults;
+
+    }
+
     public void updateRecord(String type, String id, String value, JsonObject tags) throws IndyException, ExecutionException, InterruptedException {
 
+        JsonObject tagsClone = tags.deepCopy();
         //Tags need to be saved as a string
-        for(String key : tags.keySet()){
+        for (String key : tagsClone.keySet()) {
             JsonElement property = tags.get(key);
             tags.remove(key);
-            tags.addProperty(key, property.toString());
+            tags.addProperty(key, property.toString().replaceAll("\"", ""));
         }
 
         WalletRecord.updateValue(wallet, type, id, value).get();
-        WalletRecord.updateTags(wallet, type, id, tags.toString()).get();
+        WalletRecord.updateTags(wallet, type, id, tagsClone.toString()).get();
     }
 
     public boolean verify(String signerVerkey, byte[] message, byte[] signature) throws IndyException, ExecutionException, InterruptedException {
