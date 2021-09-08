@@ -6,6 +6,7 @@
 * Set ndk version to `20.1.5948944` in app level build.gradle
 * Import Aries Mobile Agent Android AAR
 * Request external files permission in Android Manifest
+    * Add `android:usesCleartextTraffic="true"` to your application tag
 * In MainActivity.onCreate() make sure that you are running `Os.setenv("EXTERNAL_STORAGE", getExternalFilesDir(null).getAbsolutePath(), true);` before you use the module.
 
 ## Development
