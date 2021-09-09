@@ -64,6 +64,12 @@ public class IndyWallet {
         Log.d(TAG, "Wallet created");
     }
 
+    public void deleteWallet() throws IndyException, JSONException, ExecutionException, InterruptedException {
+        Log.d(TAG, "Deleting wallet");
+        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();
+        Log.d(TAG, "Wallet deleted");
+    }
+
     private Wallet openWallet(String walletConfig, String walletCredentials, String agentId) throws IndyException, ExecutionException, InterruptedException {
         //204 wallet not found
         //203 wallet already exists

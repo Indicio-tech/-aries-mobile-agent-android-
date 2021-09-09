@@ -17,7 +17,6 @@ import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
-import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 
 public class Agent {
@@ -29,7 +28,6 @@ public class Agent {
     private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
-    private TransportService transportsService;
     private Pool pool;
     private String ledgerConfig;
 
@@ -83,8 +81,7 @@ public class Agent {
         //Creating MessageReceiver and registering connections
         try {
             this.messageReceiver = new MessageReceiver(this.indyWallet);
-            this.transportsService = new TransportService(this.messageReceiver);
-            this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
+            this.messageSender = new MessageSender(this.indyWallet, this.messageReceiver); //Put transport service inside of messageSender
 
             this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
             this.basicMessaging = new BasicMessaging(this.indyWallet, this.messageSender, this.storage, this.connections);
@@ -145,9 +142,15 @@ public class Agent {
     }
 
 
-//    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
-//        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();
-//    }
+    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
+        this.indyWallet.deleteWallet();
+        if(this.pool != null){
+            JSONObject ledgerConfig = new JSONObject(this.ledgerConfig);
+            Log.d(TAG, "Deleting ledger pool");
+            Pool.deletePoolLedgerConfig(ledgerConfig.getString("ledgername")).get();
+            Log.d(TAG, "Ledger pool deleted");
+        }
+    }
 
 //    public void closeAgent() throws InterruptedException, ExecutionException, IndyException {
 //        if (pool != null) {
