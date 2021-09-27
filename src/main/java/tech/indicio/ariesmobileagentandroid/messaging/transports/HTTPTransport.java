@@ -1,4 +1,4 @@
-package tech.indicio.ariesmobileagentandroid.transports;
+package tech.indicio.ariesmobileagentandroid.messaging.transports;
 
 import android.util.Log;
 
@@ -19,7 +19,7 @@ public class HTTPTransport {
 
     public static final MediaType JSON = MediaType.get("application/ssi-agent-wire");
     private static final String TAG = "AMAA-HTTPTransport";
-    MessageReceiver messageReceiver;
+    private MessageReceiver messageReceiver;
 
     public HTTPTransport(MessageReceiver messageReceiver) {
         this.messageReceiver = messageReceiver;
@@ -33,14 +33,16 @@ public class HTTPTransport {
         post(messageString, endpoint);
     }
 
-
     private void post(String json, String url) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = RequestBody.create(json, JSON);
+
+        Log.d(TAG, "Sending POST request: "+body);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
+                .addHeader("Content-Type", "application/ssi-agent-wire")
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -50,9 +52,13 @@ public class HTTPTransport {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                Log.d(TAG, "Received HTTP Response");
+                Log.d(TAG, "Received HTTP Response Code: "+response.code());
 
-                messageReceiver.receiveMessage(response.body().string().getBytes());
+                if(response.body().contentLength() > 0){
+                    messageReceiver.receiveMessage(response.body().bytes());
+                }else{
+                    Log.d(TAG, "Response body is empty.");
+                }
             }
         });
     }

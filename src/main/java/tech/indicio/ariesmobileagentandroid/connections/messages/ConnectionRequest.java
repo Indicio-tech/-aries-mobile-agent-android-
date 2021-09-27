@@ -13,7 +13,7 @@ public class ConnectionRequest extends BaseMessage {
     public final static String type = "https://didcomm.org/connections/1.0/request";
 
     @SerializedName("@id")
-    public String id = UUID.randomUUID().toString();
+    public String id;
 
     public String label;
     public Connection connection;
@@ -26,5 +26,13 @@ public class ConnectionRequest extends BaseMessage {
         this.label = label;
         this.connection = connection;
         this.transport = new TransportDecorator("all");
+        this.id = UUID.randomUUID().toString();
+    }
+
+    public ConnectionRequest(String label, Connection connection, String id) {
+        this.label = label;
+        this.connection = connection;
+        this.transport = new TransportDecorator("all");
+        this.id = id;
     }
 }

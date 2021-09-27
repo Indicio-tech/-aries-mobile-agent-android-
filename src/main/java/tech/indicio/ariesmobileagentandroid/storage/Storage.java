@@ -3,6 +3,7 @@ package tech.indicio.ariesmobileagentandroid.storage;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
@@ -12,39 +13,69 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
+import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
+import tech.indicio.ariesmobileagentandroid.events.AriesEvent;
 
 public class Storage {
     private static final String TAG = "AMAA-Storage";
     private final IndyWallet indyWallet;
+    private final AriesEmitter eventEmitter;
 
     private final HashMap<String, Class<? extends BaseRecord>> recordClasses = new HashMap<>();
 
-    public Storage(IndyWallet indyWallet) {
-
+    public Storage(IndyWallet indyWallet, AriesEmitter eventEmitter) {
+        this.eventEmitter = eventEmitter;
         this.indyWallet = indyWallet;
     }
 
-    public void storeRecord(BaseRecord record) throws IndyException {
+    public void storeRecord(BaseRecord record) throws IndyException, ExecutionException, InterruptedException {
         Gson gson = new Gson();
         String type = record.getType();
         String id = record.id;
-        JSONObject tags = record.tags;
+        JsonObject tags = record.tags;
         String value = gson.toJson(record);
 
         //Logs for testing
         try {
-            String prettyString = new JSONObject(value).toString(4);
-            Log.d(TAG, "Storing record of type " + type + ".\n" + prettyString);
+            String prettyString = new JSONObject(value).toString(4).replaceAll("\\\\", "");
+            Log.d(TAG, "Storing " + type + " record" + ".\n" + prettyString);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        eventEmitter.emitEvent(new AriesEvent(record));
+
         indyWallet.storeRecord(type, id, value, tags);
+    }
+
+    public void updateRecord(BaseRecord record) throws IndyException, ExecutionException, InterruptedException, JSONException {
+        Gson gson = new Gson();
+        String type = record.getType();
+        String id = record.id;
+        JsonObject tags = record.tags;
+        String value = gson.toJson(record);
+
+        //Logs for testing
+        try {
+            String prettyString = new JSONObject(value).toString(4).replaceAll("\\\\", "");
+            Log.d(TAG, "Updating " + type + " record" + ".\n" + prettyString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        BaseRecord oldRecord = this.retrieveRecord(record.getType(), record.id);
+
+        this.eventEmitter.emitEvent(new AriesEvent(
+                record,
+                oldRecord
+        ));
+
+        indyWallet.updateRecord(type, id, value, tags);
     }
 
 
     public BaseRecord retrieveRecord(String type, String id) throws IndyException, ExecutionException, InterruptedException, JSONException {
-        Log.d(TAG, "Retrieving record of type " + type + "...");
+        Log.d(TAG, "Retrieving "+type+" record...");
         //Check if type exists on recordClass map
         if (this.recordClasses.containsKey(type)) {
             Class<? extends BaseRecord> recordClass = this.recordClasses.get(type);
@@ -57,7 +88,7 @@ public class Storage {
 
             //Logs for testing
             try {
-                String prettyString = new JSONObject(record).toString(4);
+                String prettyString = new JSONObject(record).toString(4).replaceAll("\\\\", "");
                 Log.d(TAG, "Retrieved record.\n" + prettyString);
             } catch (JSONException e) {
                 e.printStackTrace();

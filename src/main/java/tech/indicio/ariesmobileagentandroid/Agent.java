@@ -10,22 +10,24 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.basicMessaging.BasicMessaging;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
+import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
-import tech.indicio.ariesmobileagentandroid.transports.TransportService;
 
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
-    private final Storage storage;
+    private Storage storage;
     public Connections connections;
+    public BasicMessaging basicMessaging;
+    public AriesEmitter eventEmitter;
     private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
-    private TransportService transportsService;
     private Pool pool;
     private String ledgerConfig;
 
@@ -34,10 +36,10 @@ public class Agent {
      *                   "agentId": String - identifier for indy wallet.
      *                   "walletKey": String - agent encryption key.
      *                   "ledgerConfig": (optional) ledger config json {
-     *                   ledgerName: String - Name for ledger pool.
-     *                   genesisFileLocation: String - File location of downloaded genesis file.
+     *                      ledgerName: String - Name for ledger pool.
+     *                      genesisFileLocation: String - File location of downloaded genesis file.
      *                   }
-     *                   }
+     *              }
      */
     public Agent(String configJson) {
         //Load indy library
@@ -68,35 +70,28 @@ public class Agent {
             Log.e(TAG, e.getMessage());
         }
 
+        //Create eventEmitter object
+        this.eventEmitter = new AriesEmitter();
+
         //Register storage and record classes
-        this.storage = new Storage(indyWallet);
+        this.storage = new Storage(indyWallet, eventEmitter);
         storage.registerRecordClass(ConnectionRecord.type, ConnectionRecord.class);
 
 
         //Creating MessageReceiver and registering connections
         try {
             this.messageReceiver = new MessageReceiver(this.indyWallet);
-            this.transportsService = new TransportService(this.messageReceiver);
-            this.messageSender = new MessageSender(this.indyWallet, this.transportsService);
+            this.messageSender = new MessageSender(this.indyWallet, this.messageReceiver); //Put transport service inside of messageSender
 
             this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
+            this.basicMessaging = new BasicMessaging(this.indyWallet, this.messageSender, this.storage, this.connections);
             this.messageReceiver.registerListener(this.connections);
+            this.messageReceiver.registerListener(this.basicMessaging);
 
             //Register Transports
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //Test recordStorage
-        try {
-            Log.d(TAG, "Record type:" + ConnectionRecord.type);
-            this.storage.storeRecord(connections.testConnectionRecord);
-            this.connections.retrieveConnectionRecord(connections.testConnectionRecord.id);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
 
@@ -147,9 +142,15 @@ public class Agent {
     }
 
 
-//    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
-//        Wallet.deleteWallet(getWalletConfig(), getWalletCredentials()).get();
-//    }
+    public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
+        this.indyWallet.deleteWallet();
+        if(this.pool != null){
+            JSONObject ledgerConfig = new JSONObject(this.ledgerConfig);
+            Log.d(TAG, "Deleting ledger pool");
+            Pool.deletePoolLedgerConfig(ledgerConfig.getString("ledgername")).get();
+            Log.d(TAG, "Ledger pool deleted");
+        }
+    }
 
 //    public void closeAgent() throws InterruptedException, ExecutionException, IndyException {
 //        if (pool != null) {
