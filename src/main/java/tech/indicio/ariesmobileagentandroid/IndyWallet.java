@@ -131,9 +131,9 @@ public class IndyWallet {
         Gson gson = new Gson();
         String recipientKeysString = gson.toJson(recipientKeys);
 
-        Log.d(TAG, "Message: "+message);
-        Log.d(TAG, "RecipientKeys: "+recipientKeysString);
-        Log.d(TAG, "senderVerkey: "+senderVerkey);
+        Log.v(TAG, "Message: "+message);
+        Log.v(TAG, "RecipientKeys: "+recipientKeysString);
+        Log.v(TAG, "senderVerkey: "+senderVerkey);
 
 
         return Crypto.packMessage(this.wallet, recipientKeysString, senderVerkey, message.getBytes(StandardCharsets.UTF_8)).get();
@@ -196,6 +196,7 @@ public class IndyWallet {
         ArrayList<String> queryResults = new ArrayList<>();
 
         String fetchedRecords = ws.fetchNextRecords(wallet, limit).get();
+        Log.d(TAG, fetchedRecords);
         JsonArray json = new JsonParser().parse(fetchedRecords).getAsJsonObject().get("records").getAsJsonArray();
 
         for (JsonElement record : json) {
@@ -210,16 +211,15 @@ public class IndyWallet {
 
     public void updateRecord(String type, String id, String value, JsonObject tags) throws IndyException, ExecutionException, InterruptedException {
 
-        JsonObject tagsClone = tags.deepCopy();
         //Tags need to be saved as a string
-        for (String key : tagsClone.keySet()) {
+        for (String key : tags.deepCopy().keySet()) {
             JsonElement property = tags.get(key);
             tags.remove(key);
             tags.addProperty(key, property.toString().replaceAll("\"", ""));
         }
 
         WalletRecord.updateValue(wallet, type, id, value).get();
-        WalletRecord.updateTags(wallet, type, id, tagsClone.toString()).get();
+        WalletRecord.updateTags(wallet, type, id, tags.toString()).get();
     }
 
     public boolean verify(String signerVerkey, byte[] message, byte[] signature) throws IndyException, ExecutionException, InterruptedException {
