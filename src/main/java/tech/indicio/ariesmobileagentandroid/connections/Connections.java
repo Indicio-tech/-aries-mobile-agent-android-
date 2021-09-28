@@ -171,7 +171,7 @@ public class Connections extends MessageListener {
             storage.updateRecord(connectionRecord);
 
             //Send ack
-            TrustPingMessage trustPing = new TrustPingMessage(false, "Connection ack", "all");
+            TrustPingMessage trustPing = new TrustPingMessage(true, "Connection ack", "all");
             this.messageSender.sendMessage(trustPing, connectionRecord);
             connectionRecord.state = ConnectionRecord.ConnectionState.COMPLETE;
             storage.updateRecord(connectionRecord);
