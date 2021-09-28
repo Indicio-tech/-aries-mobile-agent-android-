@@ -115,6 +115,7 @@ public class WSClientTransport {
             this.hasConnected = true;
             Log.d(TAG, "Socket opened for endpoint: " + endpoint);
             if (this.failed) {
+                //TODO - Move trust ping creation outside of transport
                 Log.d(TAG, "Sending trust pings");
                 TrustPingMessage tp = new TrustPingMessage("all");
                 for (ConnectionRecord connection : this.connections.values()) {
