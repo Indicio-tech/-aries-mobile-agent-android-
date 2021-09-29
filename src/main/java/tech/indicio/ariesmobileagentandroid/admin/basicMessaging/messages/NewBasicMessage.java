@@ -3,7 +3,6 @@ package tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages;
 import com.google.gson.annotations.SerializedName;
 
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 
 public class NewBasicMessage extends BaseMessage {
     @SerializedName("@type")

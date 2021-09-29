@@ -15,10 +15,9 @@ public class ConnectionListMessage extends BaseMessage {
 
     @SerializedName("~thread")
     public ThreadDecorator thread;
+    public AdminConnection[] connections;
 
     public String getType() {
         return type;
     }
-
-    public AdminConnection[] connections;
 }

@@ -17,12 +17,7 @@ public class AdminConnectedRecord extends BaseRecord {
     public String state;
     public String label;
 
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    public AdminConnectedRecord(ConnectedMessage message, ConnectionRecord adminConnection){
+    public AdminConnectedRecord(ConnectedMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
 
         this.messageObject = message;
@@ -35,6 +30,11 @@ public class AdminConnectedRecord extends BaseRecord {
 
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
 }

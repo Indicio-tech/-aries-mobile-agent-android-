@@ -84,16 +84,16 @@ public class MessageReceiver {
     }
 
 
-    private String parseDecorators(String stringMessage){
+    private String parseDecorators(String stringMessage) {
         JsonObject messageJson = new JsonParser().parse(stringMessage).getAsJsonObject();
         Gson gson = new Gson();
 
         //Loop through message keys
-        for(String key : messageJson.keySet()){
+        for (String key : messageJson.keySet()) {
 
             //~sig decorator
-            if(key.endsWith("~sig")){
-                try{
+            if (key.endsWith("~sig")) {
+                try {
                     SignatureDecorator sig = gson.fromJson(messageJson.get(key), SignatureDecorator.class);
 
                     //Needs to be decoded from base64
@@ -103,7 +103,7 @@ public class MessageReceiver {
                     //Verify signature
                     boolean isValid = this.indyWallet.verify(sig.signer, signedData, signature);
 
-                    if(!isValid){
+                    if (!isValid) {
                         throw new IllegalAccessException();
                     }
 
@@ -113,15 +113,15 @@ public class MessageReceiver {
                             key.replace("~sig", ""),
                             parsedData
                     );
-                }catch(IllegalAccessException e){
+                } catch (IllegalAccessException e) {
                     Log.e(TAG, "Invalid signature");
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
             }
         }
-        return messageJson.toString().replaceAll("\\\\","");
+        return messageJson.toString().replaceAll("\\\\", "");
     }
 
 }

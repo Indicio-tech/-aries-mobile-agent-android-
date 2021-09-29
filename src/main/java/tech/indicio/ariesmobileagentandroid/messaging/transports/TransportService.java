@@ -24,10 +24,10 @@ public class TransportService {
         try {
             //TODO: Alter inbound message passing strategy
             //TODO Replace with switch statement
-            if(endpoint.startsWith("ws")){
+            if (endpoint.startsWith("ws")) {
                 Log.d(TAG, "Sending Message to Endpoint '" + endpoint + "' over web sockets");
                 this.wsClientTransport.send(message, endpoint, connection);
-            }else{
+            } else {
                 Log.d(TAG, "Sending Message to Endpoint '" + endpoint + "' over HTTP");
                 this.httpTransport.send(message, endpoint);
             }

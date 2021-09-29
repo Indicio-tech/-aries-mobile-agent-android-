@@ -6,7 +6,6 @@ import java.util.Date;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseAdminConfirmationMessage;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.ThreadDecorator;
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 
@@ -22,12 +21,14 @@ public class AdminMessageConfirmationRecord extends BaseRecord {
     @SerializedName("~thread")
     public ThreadDecorator thread;
 
-    public String getType(){ return type;}
-
-    public AdminMessageConfirmationRecord(BaseAdminConfirmationMessage message, ConnectionRecord adminConnection){
+    public AdminMessageConfirmationRecord(BaseAdminConfirmationMessage message, ConnectionRecord adminConnection) {
         this.message = message;
         this.thread = message.thread;
         this.messageType = message.getType();
         this.adminConnection = adminConnection;
+    }
+
+    public String getType() {
+        return type;
     }
 }

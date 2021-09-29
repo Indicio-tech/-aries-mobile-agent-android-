@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class DeleteConnectionMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -18,12 +16,12 @@ public class DeleteConnectionMessage extends BaseOutboundAdminMessage {
     @SerializedName("connection_id")
     public String connectionId;
 
-    public DeleteConnectionMessage(String connectionId){
+    public DeleteConnectionMessage(String connectionId) {
         this();
         this.connectionId = connectionId;
     }
 
-    public DeleteConnectionMessage(){
+    public DeleteConnectionMessage() {
         this.id = UUID.randomUUID().toString();
     }
 

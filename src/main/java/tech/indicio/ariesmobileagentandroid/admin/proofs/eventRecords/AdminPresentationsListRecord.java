@@ -14,16 +14,18 @@ public class AdminPresentationsListRecord extends BaseRecord {
     public PresentationExchange[] presentations;
     public String threadId;
 
-    @Override
-    public String getType() {return type;}
-
-    public AdminPresentationsListRecord(PresentationsListMessage message, ConnectionRecord adminConnection){
+    public AdminPresentationsListRecord(PresentationsListMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.presentations = message.results;
         this.id = message.id;
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
 }

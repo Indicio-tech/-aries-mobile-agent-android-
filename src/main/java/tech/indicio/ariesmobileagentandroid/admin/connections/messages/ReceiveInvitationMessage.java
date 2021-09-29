@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class ReceiveInvitationMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -23,23 +21,23 @@ public class ReceiveInvitationMessage extends BaseOutboundAdminMessage {
 
     public String invitation;
 
-    public ReceiveInvitationMessage(String invitationUrl){
+    public ReceiveInvitationMessage(String invitationUrl) {
         this.id = UUID.randomUUID().toString();
         this.invitation = invitationUrl;
         this.autoAccept = true; //default autoAccept to true
     }
 
-    public ReceiveInvitationMessage(String invitation, boolean autoAccept){
+    public ReceiveInvitationMessage(String invitation, boolean autoAccept) {
         this(invitation);
         this.autoAccept = autoAccept;
     }
 
-    public ReceiveInvitationMessage(String invitation, String mediationId){
+    public ReceiveInvitationMessage(String invitation, String mediationId) {
         this(invitation);
         this.mediationId = mediationId;
     }
 
-    public ReceiveInvitationMessage(String invitation, boolean autoAccept, String mediationId){
+    public ReceiveInvitationMessage(String invitation, boolean autoAccept, String mediationId) {
         this(invitation, autoAccept);
         this.mediationId = mediationId;
     }

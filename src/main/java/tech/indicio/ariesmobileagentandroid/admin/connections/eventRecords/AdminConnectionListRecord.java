@@ -14,12 +14,7 @@ public class AdminConnectionListRecord extends BaseRecord {
     public AdminConnection[] connections;
     public String threadId;
 
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    public AdminConnectionListRecord(ConnectionListMessage message, ConnectionRecord adminConnection){
+    public AdminConnectionListRecord(ConnectionListMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.connections = message.connections;
@@ -27,6 +22,11 @@ public class AdminConnectionListRecord extends BaseRecord {
         this.id = message.id;
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
 }

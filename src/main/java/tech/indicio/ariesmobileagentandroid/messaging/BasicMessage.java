@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.LocalizationDecorator;
 
-public class BasicMessage extends BaseMessage{
+public class BasicMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/basicmessage/1.0/message";
 

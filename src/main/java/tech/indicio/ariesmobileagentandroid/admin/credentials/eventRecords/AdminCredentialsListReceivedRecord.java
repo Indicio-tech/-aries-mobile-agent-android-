@@ -14,10 +14,7 @@ public class AdminCredentialsListReceivedRecord extends BaseRecord {
     public CredentialExchangeItem[] results;
     public CredentialsListMessage messageObject;
 
-    @Override
-    public String getType() {return type;}
-
-    public AdminCredentialsListReceivedRecord(CredentialsListMessage message, ConnectionRecord adminConnection){
+    public AdminCredentialsListReceivedRecord(CredentialsListMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.threadId = message.thread.thid;
@@ -25,5 +22,10 @@ public class AdminCredentialsListReceivedRecord extends BaseRecord {
         this.id = message.id;
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 }

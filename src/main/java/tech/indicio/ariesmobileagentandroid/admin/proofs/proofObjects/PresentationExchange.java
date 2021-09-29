@@ -10,32 +10,20 @@ public class PresentationExchange {
     public String updatedAt;
 
     public String role;
-
-    boolean trace;
-
     @SerializedName("created_at")
     public String createdAt;
-
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;
-
     @SerializedName("connection_id")
     public String connectionId;
-
     @SerializedName("thread_id")
     public String threadId;
-
     @SerializedName("presentation_request_dict")
     public JsonObject presentationRequestDict;
-
     @SerializedName("presentation_request")
     public PresentationRequest presentationRequest;
-
     public String state;
-
-
-
-
+    boolean trace;
 
 
 }

@@ -22,7 +22,7 @@ public class AdminConnection {
     @SerializedName("my_did")
     public String myDid;
 
-    public AdminConnection(ConnectedMessage message){
+    public AdminConnection(ConnectedMessage message) {
         this.theirDid = message.theirDid;
         this.connectionId = message.connectionId;
         this.label = message.label;
