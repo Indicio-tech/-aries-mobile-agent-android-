@@ -131,9 +131,9 @@ public class IndyWallet {
         Gson gson = new Gson();
         String recipientKeysString = gson.toJson(recipientKeys);
 
-        Log.v(TAG, "Message: "+message);
-        Log.v(TAG, "RecipientKeys: "+recipientKeysString);
-        Log.v(TAG, "senderVerkey: "+senderVerkey);
+        Log.v(TAG, "Message: " + message);
+        Log.v(TAG, "RecipientKeys: " + recipientKeysString);
+        Log.v(TAG, "senderVerkey: " + senderVerkey);
 
 
         return Crypto.packMessage(this.wallet, recipientKeysString, senderVerkey, message.getBytes(StandardCharsets.UTF_8)).get();
@@ -154,13 +154,13 @@ public class IndyWallet {
     public void storeRecord(String type, String id, String value, JsonObject tags) throws IndyException, ExecutionException, InterruptedException {
 
         //Tags need to be saved as a string
-        for(String key : tags.keySet()){
-             JsonElement property = tags.get(key);
+        for (String key : tags.keySet()) {
+            JsonElement property = tags.get(key);
             tags.remove(key);
             tags.addProperty(key, property.toString().replaceAll("\"", ""));
         }
 
-        Log.d(TAG, "Type:\n\t"+type+"\nID:\n\t"+id+"\nValue:\n\t"+value+"\nTags:\n\t"+tags.toString());
+        Log.d(TAG, "Type:\n\t" + type + "\nID:\n\t" + id + "\nValue:\n\t" + value + "\nTags:\n\t" + tags.toString());
 
         WalletRecord.add(wallet, type, id, value, tags.toString()).get();
     }

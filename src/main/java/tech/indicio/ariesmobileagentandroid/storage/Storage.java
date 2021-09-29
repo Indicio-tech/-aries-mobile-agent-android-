@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
-import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
 import tech.indicio.ariesmobileagentandroid.events.AriesEvent;
 
@@ -78,7 +77,7 @@ public class Storage {
 
 
     public BaseRecord retrieveRecord(String type, String id) throws IndyException, ExecutionException, InterruptedException, JSONException {
-        Log.d(TAG, "Retrieving "+type+" record...");
+        Log.d(TAG, "Retrieving " + type + " record...");
         //Check if type exists on recordClass map
         if (this.recordClasses.containsKey(type)) {
             Class<? extends BaseRecord> recordClass = this.recordClasses.get(type);
@@ -116,7 +115,7 @@ public class Storage {
             Gson gson = new Gson();
             return gson.fromJson(recordList.get(0), recordClass);
 
-        }else {
+        } else {
             throw new Error("Unsupported record type");
         }
 

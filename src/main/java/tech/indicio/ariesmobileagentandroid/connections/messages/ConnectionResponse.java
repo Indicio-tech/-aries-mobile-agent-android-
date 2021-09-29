@@ -2,13 +2,10 @@ package tech.indicio.ariesmobileagentandroid.connections.messages;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.UUID;
-
 import tech.indicio.ariesmobileagentandroid.connections.Connection;
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.SignatureDecorator;
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.ThreadDecorator;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class ConnectionResponse extends BaseMessage {
     @SerializedName("@type")

@@ -26,11 +26,6 @@ public class BasicMessaging extends MessageListener {
     private final Connections connections;
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
 
-    @Override
-    public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
-        return this.supportedMessages;
-    }
-
     public BasicMessaging(IndyWallet indyWallet, MessageSender messageSender, Storage storage, Connections connections) {
         Log.d(TAG, "Creating BasicMessaging service");
         this.indyWallet = indyWallet;
@@ -40,6 +35,11 @@ public class BasicMessaging extends MessageListener {
 
         //Register supported messages
         this.supportedMessages.put(BasicMessage.type, BasicMessage.class);
+    }
+
+    @Override
+    public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
+        return this.supportedMessages;
     }
 
     public void sendBasicMessage(String message, ConnectionRecord connectionRecord) throws InterruptedException, ExecutionException, IndyException, JSONException {

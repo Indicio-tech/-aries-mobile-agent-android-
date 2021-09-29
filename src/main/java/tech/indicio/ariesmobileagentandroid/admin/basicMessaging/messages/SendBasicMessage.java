@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 
 public class SendBasicMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -20,7 +19,7 @@ public class SendBasicMessage extends BaseOutboundAdminMessage {
     public String content;
 
 
-    public SendBasicMessage(String content, String connectionId){
+    public SendBasicMessage(String content, String connectionId) {
         this.content = content;
         this.connectionId = connectionId;
         this.id = UUID.randomUUID().toString();

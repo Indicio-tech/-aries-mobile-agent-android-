@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 
 public class PresentationsGetListMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -18,11 +17,11 @@ public class PresentationsGetListMessage extends BaseOutboundAdminMessage {
     public String connectionId;
 
 
-    public PresentationsGetListMessage(){
+    public PresentationsGetListMessage() {
         this.id = UUID.randomUUID().toString();
     }
 
-    public PresentationsGetListMessage(String connectionId){
+    public PresentationsGetListMessage(String connectionId) {
         this();
         this.connectionId = connectionId;
     }

@@ -6,8 +6,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class UpdateConnectionMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -22,7 +20,7 @@ public class UpdateConnectionMessage extends BaseOutboundAdminMessage {
     public String label;
     public String role;
 
-    private UpdateConnectionMessage(String connectionId){
+    private UpdateConnectionMessage(String connectionId) {
         this.connectionId = connectionId;
         this.id = UUID.randomUUID().toString();
     }
@@ -32,13 +30,13 @@ public class UpdateConnectionMessage extends BaseOutboundAdminMessage {
      * @param config {
      *               String role (Optional): Modify role of connection
      *               String label (Optional): Modify label of connection
-     * }
+     *               }
      */
-    public UpdateConnectionMessage(String connectionId, JsonObject config){
+    public UpdateConnectionMessage(String connectionId, JsonObject config) {
         this(connectionId);
-        if(config.has("role"))
+        if (config.has("role"))
             this.role = config.get("role").toString();
-        if(config.has("label"))
+        if (config.has("label"))
             this.label = config.get("label").toString();
     }
 }

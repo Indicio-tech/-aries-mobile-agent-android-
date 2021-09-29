@@ -1,7 +1,5 @@
 package tech.indicio.ariesmobileagentandroid.admin.proofs;
 
-import com.google.gson.JsonObject;
-
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 
@@ -17,15 +15,15 @@ import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
 public class AdminProofs {
 
-    private MessageSender messageSender;
+    private final MessageSender messageSender;
     private ConnectionRecord adminConnection;
 
-    public AdminProofs(MessageSender messageSender, ConnectionRecord adminConnection){
+    public AdminProofs(MessageSender messageSender, ConnectionRecord adminConnection) {
         this.messageSender = messageSender;
         this.adminConnection = adminConnection;
     }
 
-    public void _setAdminConnection(ConnectionRecord adminConnection){
+    public void _setAdminConnection(ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
     }
 

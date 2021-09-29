@@ -11,15 +11,15 @@ import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
 public class AdminCredentials {
-    private MessageSender messageSender;
+    private final MessageSender messageSender;
     private ConnectionRecord adminConnection;
 
-    public AdminCredentials(MessageSender messageSender, ConnectionRecord adminConnection){
+    public AdminCredentials(MessageSender messageSender, ConnectionRecord adminConnection) {
         this.messageSender = messageSender;
         this.adminConnection = adminConnection;
     }
 
-    public void _setAdminConnection(ConnectionRecord adminConnection){
+    public void _setAdminConnection(ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
     }
 

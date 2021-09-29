@@ -19,7 +19,7 @@ public class HTTPTransport {
 
     public static final MediaType JSON = MediaType.get("application/ssi-agent-wire");
     private static final String TAG = "AMAA-HTTPTransport";
-    private MessageReceiver messageReceiver;
+    private final MessageReceiver messageReceiver;
 
     public HTTPTransport(MessageReceiver messageReceiver) {
         this.messageReceiver = messageReceiver;
@@ -38,7 +38,7 @@ public class HTTPTransport {
 
         RequestBody body = RequestBody.create(json, JSON);
 
-        Log.d(TAG, "Sending POST request: "+body);
+        Log.d(TAG, "Sending POST request: " + body);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -52,11 +52,11 @@ public class HTTPTransport {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                Log.d(TAG, "Received HTTP Response Code: "+response.code());
+                Log.d(TAG, "Received HTTP Response Code: " + response.code());
 
-                if(response.body().contentLength() > 0){
+                if (response.body().contentLength() > 0) {
                     messageReceiver.receiveMessage(response.body().bytes());
-                }else{
+                } else {
                     Log.d(TAG, "Response body is empty.");
                 }
             }

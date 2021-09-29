@@ -17,5 +17,7 @@ public class PresentationSentMessage extends BaseAdminConfirmationMessage {
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;
 
-    public String getType(){ return type; }
+    public String getType() {
+        return type;
+    }
 }
