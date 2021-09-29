@@ -1,16 +1,11 @@
 package tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords;
 
-import android.os.Build;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +18,6 @@ import java.util.Locale;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.AdminBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.ReceivedBasicMessages;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 
 public class AdminBasicMessagesRecord extends BaseRecord {
@@ -34,11 +28,7 @@ public class AdminBasicMessagesRecord extends BaseRecord {
     public String threadId;
     public HashMap<String, List<AdminBasicMessage>> basicMessages;
 
-    public String getType() {
-        return type;
-    }
-
-    public AdminBasicMessagesRecord(ReceivedBasicMessages message, ConnectionRecord adminConnection){
+    public AdminBasicMessagesRecord(ReceivedBasicMessages message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.basicMessagesArray = sortBasicMessages(message.messages);
@@ -48,11 +38,11 @@ public class AdminBasicMessagesRecord extends BaseRecord {
         tags.addProperty("adminConnection", adminConnection.id);
 
         this.basicMessages = new HashMap<>();
-        for(AdminBasicMessage bm: basicMessagesArray){
+        for (AdminBasicMessage bm : basicMessagesArray) {
             List<AdminBasicMessage> list;
-            if(this.basicMessages.containsKey(bm.connectionId)){
+            if (this.basicMessages.containsKey(bm.connectionId)) {
                 list = this.basicMessages.get(bm.connectionId);
-            }else{
+            } else {
                 list = new ArrayList<AdminBasicMessage>();
                 this.basicMessages.put(bm.connectionId, list);
             }
@@ -60,9 +50,13 @@ public class AdminBasicMessagesRecord extends BaseRecord {
         }
     }
 
-    private AdminBasicMessage[] sortBasicMessages(AdminBasicMessage[] messages){
+    public String getType() {
+        return type;
+    }
+
+    private AdminBasicMessage[] sortBasicMessages(AdminBasicMessage[] messages) {
         AdminBasicMessage[] newArr = messages;
-        try{
+        try {
             ArrayList<AdminBasicMessage> messageList = new ArrayList(Arrays.asList(messages));
 
             Collections.sort(messageList, (Comparator<AdminBasicMessage>) (m1, m2) -> {
@@ -79,7 +73,7 @@ public class AdminBasicMessagesRecord extends BaseRecord {
             });
 
             newArr = (AdminBasicMessage[]) messageList.toArray(newArr);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

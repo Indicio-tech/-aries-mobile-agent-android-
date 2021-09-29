@@ -10,18 +10,18 @@ import org.json.JSONException;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminBasicMessaging;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessageReceivedRecord;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessagesRecord;
-import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminBasicMessaging;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.DeleteBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.DeletedBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.NewBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.ReceivedBasicMessages;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.SentBasicMessage;
+import tech.indicio.ariesmobileagentandroid.admin.connections.AdminConnections;
 import tech.indicio.ariesmobileagentandroid.admin.connections.eventRecords.AdminConnectedRecord;
 import tech.indicio.ariesmobileagentandroid.admin.connections.eventRecords.AdminConnectionListRecord;
 import tech.indicio.ariesmobileagentandroid.admin.connections.eventRecords.AdminConnectionPendingRecord;
-import tech.indicio.ariesmobileagentandroid.admin.connections.AdminConnections;
 import tech.indicio.ariesmobileagentandroid.admin.connections.messages.ConnectedMessage;
 import tech.indicio.ariesmobileagentandroid.admin.connections.messages.ConnectionListMessage;
 import tech.indicio.ariesmobileagentandroid.admin.connections.messages.ConnectionMessage;
@@ -54,26 +54,23 @@ import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
 public class Admin extends MessageListener {
     private static final String TAG = "AMAA-Admin";
+    private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
     public ConnectionRecord adminConnection;
-    private MessageSender messageSender;
-    private Storage storage;
-    private Connections agentConnections;
     public AdminConnections connections;
-    private AriesEmitter eventEmitter;
     public AdminBasicMessaging basicMessaging;
     public AdminCredentials credentials;
     public AdminProofs proofs;
-
-
     //For creating admin connection
     public boolean connectedToAdmin = false;
+    private final MessageSender messageSender;
+    private final Storage storage;
+    private final Connections agentConnections;
+    private final AriesEmitter eventEmitter;
     private String adminConnectionId;
     private String adminInvitationUrl;
-    private AdminListener adminListener;
+    private final AdminListener adminListener;
 
-    private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
-
-    public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections, String adminInvitationUrl){
+    public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections, String adminInvitationUrl) {
         this.messageSender = messageSender;
         this.agentConnections = agentConnections;
         this.storage = storage;
@@ -81,8 +78,8 @@ public class Admin extends MessageListener {
         this.adminListener = new AdminListener();
         this.eventEmitter.registerListener(this.adminListener);
         //Search for existing admin connection
-        if(adminInvitationUrl != null){
-            try{
+        if (adminInvitationUrl != null) {
+            try {
                 this.connectToAdmin(adminInvitationUrl);
             } catch (Exception e) {
                 Log.d(TAG, "No admin connection set");
@@ -113,20 +110,20 @@ public class Admin extends MessageListener {
 
     }
 
-    public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections){
-        this(storage, messageSender, eventEmitter, agentConnections,"default_admin_connection");
+    public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections) {
+        this(storage, messageSender, eventEmitter, agentConnections, "default_admin_connection");
     }
 
     //TODO - Make behavior more explicit / separate portions to connections module?
     public void setAdminConnection(ConnectionRecord adminConnection, String connectionName) throws InterruptedException, ExecutionException, IndyException, JSONException {
         //Remove tag from old connection
         Log.d(TAG, "Setting admin connection");
-        try{
+        try {
             ConnectionRecord oldConnection = this.retrieveAdminConnectionRecord(connectionName);
             oldConnection.tags.remove("admin_connection");
             this.storage.updateRecord(oldConnection);
             Log.d(TAG, "Removed tag from old connection record");
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "Could not update old connection");
         }
 
@@ -158,13 +155,13 @@ public class Admin extends MessageListener {
     public ConnectionRecord connectToAdmin(String adminInvitationUrl) throws Exception {
         this.connectedToAdmin = false;
         this.adminInvitationUrl = adminInvitationUrl;
-        try{
+        try {
             //First check if already connected
             ConnectionRecord adminConnection = this.retrieveAdminConnectionRecord(adminInvitationUrl);
             this.connectedToAdmin = true;
             this.setAdminConnection(adminConnection, adminInvitationUrl);
             return adminConnection;
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "Admin connection not found, creating connection");
             e.printStackTrace();
         }
@@ -172,7 +169,8 @@ public class Admin extends MessageListener {
             ConnectionRecord connection = this.agentConnections.receiveInvitationUrl(adminInvitationUrl);
             this.adminConnectionId = connection.id;
             //TODO - make this more generic
-            while(!connectedToAdmin){} //wait until connected to admin
+            while (!connectedToAdmin) {
+            } //wait until connected to admin
             return retrieveAdminConnectionRecord(adminInvitationUrl);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
@@ -183,7 +181,7 @@ public class Admin extends MessageListener {
     private ConnectionRecord retrieveAdminConnectionRecord(String adminName) throws IndyException, ExecutionException, JSONException, InterruptedException {
         JsonObject query = new JsonObject();
         query.addProperty("admin_connection", adminName);
-        Log.d(TAG, "Searching for adminConnection with invitation URL: "+adminName);
+        Log.d(TAG, "Searching for adminConnection with invitation URL: " + adminName);
         return (ConnectionRecord) this.storage.retrieveRecordsByTags(ConnectionRecord.type, query, 1);
     }
 
@@ -196,20 +194,20 @@ public class Admin extends MessageListener {
 
 
     @Override
-    public void _callback(String type, BaseMessage message, String senderVerkey){
+    public void _callback(String type, BaseMessage message, String senderVerkey) {
         BaseRecord record;
-        Log.d(TAG, "Type: "+ type);
-        switch(type){
-          //Basic Messages
+        Log.d(TAG, "Type: " + type);
+        switch (type) {
+            //Basic Messages
             case ReceivedBasicMessages.type:
                 Log.d(TAG, "Admin received basic message list");
                 record = new AdminBasicMessagesRecord((ReceivedBasicMessages) message, this.adminConnection);
                 break;
             case NewBasicMessage.type:
                 Log.d(TAG, "Admin received new basic message.");
-                record = new AdminBasicMessageReceivedRecord((NewBasicMessage)message, this.adminConnection);
+                record = new AdminBasicMessageReceivedRecord((NewBasicMessage) message, this.adminConnection);
                 break;
-          //Connections
+            //Connections
             case ConnectionMessage.type:
                 Log.d(TAG, "Admin received connection message");
                 record = new AdminConnectionPendingRecord((ConnectionMessage) message, this.adminConnection);
@@ -222,7 +220,7 @@ public class Admin extends MessageListener {
                 Log.d(TAG, "Admin fetched connections list");
                 record = new AdminConnectionListRecord((ConnectionListMessage) message, this.adminConnection);
                 break;
-          //Credentials
+            //Credentials
             case CredentialOfferReceivedMessage.type:
                 Log.d(TAG, "Admin credential offer received");
                 record = new AdminCredentialOfferReceivedRecord((CredentialOfferReceivedMessage) message, this.adminConnection);
@@ -233,9 +231,9 @@ public class Admin extends MessageListener {
                 break;
             case CredentialsListMessage.type:
                 Log.d(TAG, "Admin credentials list received");
-                record = new AdminCredentialsListReceivedRecord((CredentialsListMessage)message, this.adminConnection);
+                record = new AdminCredentialsListReceivedRecord((CredentialsListMessage) message, this.adminConnection);
                 break;
-          //Proofs
+            //Proofs
             case PresentationsListMessage.type:
                 Log.d(TAG, "Admin presentations list received");
                 record = new AdminPresentationsListRecord((PresentationsListMessage) message, this.adminConnection);
@@ -244,7 +242,7 @@ public class Admin extends MessageListener {
                 Log.d(TAG, "Admin matching credentials received");
                 record = new AdminMatchingCredentialsRecord((PresentationMatchingCredentialsMessage) message, this.adminConnection);
                 break;
-          //Confirmation messages
+            //Confirmation messages
             default:
                 Log.d(TAG, "Admin confirmation event triggered");
                 record = new AdminMessageConfirmationRecord((BaseAdminConfirmationMessage) message, this.adminConnection);
@@ -253,7 +251,7 @@ public class Admin extends MessageListener {
         eventEmitter.emitEvent(new AriesEvent(record));
     }
 
-    private class AdminListener implements AriesListener{
+    private class AdminListener implements AriesListener {
         public void onEvent(AriesEvent event) {
             switch (event.recordType) {
                 case ConnectionRecord.type:

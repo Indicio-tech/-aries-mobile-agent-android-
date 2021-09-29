@@ -1,6 +1,5 @@
 package tech.indicio.ariesmobileagentandroid.admin.credentials.messages;
 
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 import tech.indicio.ariesmobileagentandroid.admin.credentials.offerObjects.CredentialExchangeItem;

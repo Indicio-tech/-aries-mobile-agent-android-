@@ -3,9 +3,7 @@ package tech.indicio.ariesmobileagentandroid.admin.connections.messages;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
-import tech.indicio.ariesmobileagentandroid.admin.connections.AdminConnection;
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.ThreadDecorator;
 
 public class ConnectedMessage extends BaseMessage {
     @SerializedName("@type")

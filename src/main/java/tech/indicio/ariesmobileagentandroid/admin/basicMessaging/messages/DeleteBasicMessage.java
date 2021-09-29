@@ -6,8 +6,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class DeleteBasicMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -39,15 +37,15 @@ public class DeleteBasicMessage extends BaseOutboundAdminMessage {
      *               String connectionId (Optional): Connection ID to target
      *               String beforeDate (Optional): Delete before this date
      *               String messageID (Optional): Message ID to be deleted
-     * }
+     *               }
      */
-    public DeleteBasicMessage(JsonObject config){
+    public DeleteBasicMessage(JsonObject config) {
         this();
-        if(config.has("connectionId"))
+        if (config.has("connectionId"))
             this.connectionId = config.get("connectionId").toString();
-        if(config.has("beforeDate"))
+        if (config.has("beforeDate"))
             this.beforeDate = config.get("beforeDate").toString();
-        if(config.has("messageId"))
+        if (config.has("messageId"))
             this.messageId = config.get("messageId").toString();
     }
 

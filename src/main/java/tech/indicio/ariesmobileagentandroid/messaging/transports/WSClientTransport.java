@@ -21,10 +21,9 @@ import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
 public class WSClientTransport {
     private static final String TAG = "AMAA-WSClientTransport";
-    private MessageReceiver messageReceiver;
-    private MessageSender messageSender;
-
     private final HashMap<String, Pair<WebSocket, AriesSocketListener>> socketMap = new HashMap();
+    private final MessageReceiver messageReceiver;
+    private final MessageSender messageSender;
 
     public WSClientTransport(MessageReceiver messageReceiver, MessageSender messageSender) {
         this.messageReceiver = messageReceiver;
@@ -62,9 +61,9 @@ public class WSClientTransport {
     }
 
     private class AriesSocketListener extends WebSocketListener {
-        public String endpoint;
         private final HashMap<String, ConnectionRecord> connections;
         private final boolean failed; //If the listener has previously failed
+        public String endpoint;
         private boolean hasConnected = false;
 
         private AriesSocketListener(String endpoint, HashMap<String, ConnectionRecord> connections, boolean failed) {
@@ -87,8 +86,8 @@ public class WSClientTransport {
 
 
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-            super.onFailure(webSocket,t,response);
-            if(hasConnected){
+            super.onFailure(webSocket, t, response);
+            if (hasConnected) {
                 Log.d(TAG, "Websocket failure for endpoint: " + endpoint + "\n" + t.getMessage());
 
                 //OnFail recreate socket
@@ -102,12 +101,12 @@ public class WSClientTransport {
         }
 
         public void onMessage(@NotNull WebSocket webSocket, @NotNull String message) {
-            Log.d(TAG, "WS String message received for endpoint: "+endpoint);
+            Log.d(TAG, "WS String message received for endpoint: " + endpoint);
             messageReceiver.receiveMessage(message.getBytes());
         }
 
         public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString message) {
-            Log.d(TAG, "WS ByteString message received for endpoint: "+endpoint);
+            Log.d(TAG, "WS ByteString message received for endpoint: " + endpoint);
             messageReceiver.receiveMessage(message.toByteArray());
         }
 

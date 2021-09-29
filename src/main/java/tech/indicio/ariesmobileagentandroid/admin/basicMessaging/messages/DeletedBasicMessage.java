@@ -3,9 +3,6 @@ package tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages;
 import com.google.gson.annotations.SerializedName;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseAdminConfirmationMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.ThreadDecorator;
 
 public class DeletedBasicMessage extends BaseAdminConfirmationMessage {
     @SerializedName("@type")
@@ -19,7 +16,7 @@ public class DeletedBasicMessage extends BaseAdminConfirmationMessage {
 
     public AdminBasicMessage[] deleted;
 
-    public String getType(){
+    public String getType() {
         return type;
     }
 }

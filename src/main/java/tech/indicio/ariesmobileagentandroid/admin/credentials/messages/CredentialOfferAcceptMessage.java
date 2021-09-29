@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class CredentialOfferAcceptMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -18,7 +16,7 @@ public class CredentialOfferAcceptMessage extends BaseOutboundAdminMessage {
     @SerializedName("credential_exchange_id")
     public String credentialExchangeId;
 
-    public CredentialOfferAcceptMessage(String credentialExchangeId){
+    public CredentialOfferAcceptMessage(String credentialExchangeId) {
         this.id = UUID.randomUUID().toString();
         this.credentialExchangeId = credentialExchangeId;
     }

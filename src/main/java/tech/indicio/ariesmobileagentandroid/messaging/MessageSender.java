@@ -32,11 +32,11 @@ public class MessageSender {
         String endpoint;
         String[] recipientKeys;
 
-        if(connectionRecord.theirDidDoc != null){
+        if (connectionRecord.theirDidDoc != null) {
             IndyService service = selectService(connectionRecord.theirDidDoc.service);
             endpoint = service.serviceEndpoint;
             recipientKeys = service.recipientKeys;
-        }else{
+        } else {
             Log.e(TAG, new Gson().toJson(connectionRecord));
             endpoint = connectionRecord.invitation.serviceEndpoint;
             recipientKeys = connectionRecord.invitation.recipientKeys;
@@ -46,7 +46,7 @@ public class MessageSender {
 
         Gson gson = new GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).create();
         String jsonMessage = gson.toJson(message);
-        Log.d(TAG, "GSON object: "+ jsonMessage);
+        Log.d(TAG, "GSON object: " + jsonMessage);
 
         //Just for logging
         JSONObject logMessage = new JSONObject(jsonMessage);
@@ -55,16 +55,16 @@ public class MessageSender {
 
         //Pack with indy
         byte[] packedMessage = this.indyWallet.packMessage(jsonMessage, recipientKeys, senderVerkey);
-        Log.d(TAG, "OUTBOUND MESSAGE:"+jsonMessage);
+        Log.d(TAG, "OUTBOUND MESSAGE:" + jsonMessage);
 
         this.transportService.send(packedMessage, endpoint, connectionRecord);
     }
 
-    private IndyService selectService(IndyService[] services, String[] protocolPreference){
+    private IndyService selectService(IndyService[] services, String[] protocolPreference) {
         //Loop through protocols in order of preference and grab the first one that has a matching endpoint.
-        for(String protocol : protocolPreference){
-            for(IndyService service : services){
-                if(service.serviceEndpoint.startsWith(protocol)){
+        for (String protocol : protocolPreference) {
+            for (IndyService service : services) {
+                if (service.serviceEndpoint.startsWith(protocol)) {
                     return service;
                 }
             }
@@ -73,7 +73,7 @@ public class MessageSender {
         return services[0];
     }
 
-    private IndyService selectService(IndyService[] services){
+    private IndyService selectService(IndyService[] services) {
         String[] preferenceOrder = {"wss", "ws", "https", "http"};
         return selectService(services, preferenceOrder);
     }

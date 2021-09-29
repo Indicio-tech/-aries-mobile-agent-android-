@@ -39,7 +39,7 @@ public class Connections extends MessageListener {
     //Add supported message classes in constructor.
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
 
-    private HashMap<String, ConnectionStateHandler> connectionStateHandlers = new HashMap<>();
+    private final HashMap<String, ConnectionStateHandler> connectionStateHandlers = new HashMap<>();
 
     public Connections(IndyWallet indyWallet, MessageSender messageSender, Storage storage) {
         Log.d(TAG, "Creating Connections service");
@@ -53,11 +53,11 @@ public class Connections extends MessageListener {
 
     }
 
-    public void registerConnectionStateHandler(ConnectionStateHandler handler){
+    public void registerConnectionStateHandler(ConnectionStateHandler handler) {
         connectionStateHandlers.put(handler.id, handler);
     }
 
-    public void removeConnectionStateHandler(ConnectionStateHandler handler){
+    public void removeConnectionStateHandler(ConnectionStateHandler handler) {
         connectionStateHandlers.remove(handler.id);
     }
 
@@ -152,14 +152,14 @@ public class Connections extends MessageListener {
         }
     }
 
-    private void processResponse(ConnectionResponse connectionResponse){
+    private void processResponse(ConnectionResponse connectionResponse) {
         try {
             ConnectionRecord connectionRecord = this.retrieveConnectionRecord(connectionResponse.thread.thid);
 
             String signerVerkey = connectionResponse.signedConnection.signer;
             String invitationVerkey = connectionRecord.invitation.recipientKeys[0];
 
-            if(!signerVerkey.equals(invitationVerkey)){
+            if (!signerVerkey.equals(invitationVerkey)) {
                 throw new Error("Connection in connection response is not signed with same key as recipient key in invitation");
             }
 

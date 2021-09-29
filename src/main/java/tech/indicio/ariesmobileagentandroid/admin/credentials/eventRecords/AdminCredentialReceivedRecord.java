@@ -15,10 +15,7 @@ public class AdminCredentialReceivedRecord extends BaseRecord {
     public String connectionId;
     public String credentialExchangeId;
 
-    @Override
-    public String getType(){return type;}
-
-    public AdminCredentialReceivedRecord(CredentialReceivedMessage message, ConnectionRecord adminConnection){
+    public AdminCredentialReceivedRecord(CredentialReceivedMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.attributes = message.credentialProposalDict.credentialProposal.attributes;
@@ -27,5 +24,10 @@ public class AdminCredentialReceivedRecord extends BaseRecord {
         this.credentialExchangeId = message.credentialExchangeId;
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 }

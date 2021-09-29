@@ -5,9 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
-import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class GetBasicMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
@@ -22,31 +19,31 @@ public class GetBasicMessage extends BaseOutboundAdminMessage {
     public int limit;
     public int offset;
 
-    public GetBasicMessage(){
+    public GetBasicMessage() {
         this.id = UUID.randomUUID().toString();
     }
 
-    public GetBasicMessage(String connectionId){
+    public GetBasicMessage(String connectionId) {
         this();
         this.connectionId = connectionId;
     }
 
-    public GetBasicMessage(int limit){
+    public GetBasicMessage(int limit) {
         this();
         this.limit = limit;
     }
 
-    public GetBasicMessage(int limit, int offset){
+    public GetBasicMessage(int limit, int offset) {
         this(limit);
         this.offset = offset;
     }
 
-    public GetBasicMessage(String connectionId, int limit){
+    public GetBasicMessage(String connectionId, int limit) {
         this(connectionId);
         this.limit = limit;
     }
 
-    public GetBasicMessage(String connectionId, int limit, int offset){
+    public GetBasicMessage(String connectionId, int limit, int offset) {
         this(limit, offset);
         this.connectionId = connectionId;
     }

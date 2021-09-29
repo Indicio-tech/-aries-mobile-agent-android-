@@ -4,9 +4,7 @@ import com.google.gson.JsonObject;
 
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.AdminBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.NewBasicMessage;
-import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.ReceivedBasicMessages;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
-import tech.indicio.ariesmobileagentandroid.messaging.BasicMessage;
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 
 public class AdminBasicMessageReceivedRecord extends BaseRecord {
@@ -16,7 +14,7 @@ public class AdminBasicMessageReceivedRecord extends BaseRecord {
     public AdminBasicMessage message;
     public String connectionId;
 
-    public AdminBasicMessageReceivedRecord(NewBasicMessage message, ConnectionRecord adminConnection){
+    public AdminBasicMessageReceivedRecord(NewBasicMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.plainMessage = message;
         this.message = message.message;

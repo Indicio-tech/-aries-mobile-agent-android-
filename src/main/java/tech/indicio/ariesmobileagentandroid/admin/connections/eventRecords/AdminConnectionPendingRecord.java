@@ -12,17 +12,17 @@ public class AdminConnectionPendingRecord extends BaseRecord {
     public ConnectionMessage messageObject;
     public String threadId;
 
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    public AdminConnectionPendingRecord(ConnectionMessage message, ConnectionRecord adminConnection){
+    public AdminConnectionPendingRecord(ConnectionMessage message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.messageObject = message;
         this.threadId = message.thread.thid;
         this.id = message.connectionId;
         this.tags = new JsonObject();
         tags.addProperty("adminConnection", adminConnection.id);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 }
