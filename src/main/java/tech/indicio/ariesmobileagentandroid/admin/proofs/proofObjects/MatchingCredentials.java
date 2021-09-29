@@ -1,11 +1,11 @@
-package tech.indicio.ariesmobileagentandroid.admin.proofs;
+package tech.indicio.ariesmobileagentandroid.admin.proofs.proofObjects;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 public class MatchingCredentials {
     @SerializedName("cred_info")
-    public JsonObject credInfo;
+    public AdminCredentialInfo credInfo;
 
     @SerializedName("schema_id")
     public String schemaId;
@@ -19,7 +19,8 @@ public class MatchingCredentials {
     @SerializedName("cred_rev")
     public String credRev;
 
-    public JsonObject interval;
+    //Gson blows up if interval is null
+//    public JsonObject interval;
 
     @SerializedName("presentation_referents")
     public JsonObject presentationReferents;
