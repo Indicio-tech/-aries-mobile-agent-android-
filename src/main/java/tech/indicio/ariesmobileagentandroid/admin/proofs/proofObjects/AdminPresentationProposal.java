@@ -1,4 +1,4 @@
-package tech.indicio.ariesmobileagentandroid.admin.proofs;
+package tech.indicio.ariesmobileagentandroid.admin.proofs.proofObjects;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;

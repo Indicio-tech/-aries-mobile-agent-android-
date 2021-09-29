@@ -2,6 +2,8 @@ package tech.indicio.ariesmobileagentandroid.admin.proofs.messages;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.UUID;
+
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 
@@ -14,4 +16,9 @@ public class PresentationGetMatchingCredentialsMessage extends BaseOutboundAdmin
 
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;
+
+    public PresentationGetMatchingCredentialsMessage(String presentationExchangeId){
+        this.presentationExchangeId = presentationExchangeId;
+        this.id = this.id = UUID.randomUUID().toString();
+    }
 }
