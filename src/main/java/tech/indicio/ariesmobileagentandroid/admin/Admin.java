@@ -35,6 +35,11 @@ import tech.indicio.ariesmobileagentandroid.admin.credentials.messages.Credentia
 import tech.indicio.ariesmobileagentandroid.admin.credentials.messages.CredentialsListMessage;
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseAdminConfirmationMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.AdminProofs;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminMatchingCredentialsRecord;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminPresentationsListRecord;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationMatchingCredentialsMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationSentMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationsListMessage;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.connections.messages.TrustPingMessage;
@@ -76,12 +81,13 @@ public class Admin extends MessageListener {
         this.adminListener = new AdminListener();
         this.eventEmitter.registerListener(this.adminListener);
         //Search for existing admin connection
-        try{
-            this.connectToAdmin(adminInvitationUrl);
-        } catch (Exception e) {
-            Log.d(TAG, "No admin connection set");
+        if(adminInvitationUrl != null){
+            try{
+                this.connectToAdmin(adminInvitationUrl);
+            } catch (Exception e) {
+                Log.d(TAG, "No admin connection set");
+            }
         }
-
 
         //BasicMessaging
         this.supportedMessages.put(DeletedBasicMessage.type, DeleteBasicMessage.class);
@@ -100,13 +106,19 @@ public class Admin extends MessageListener {
         this.supportedMessages.put(CredentialReceivedMessage.type, CredentialReceivedMessage.class);
         this.supportedMessages.put(CredentialsListMessage.type, CredentialsListMessage.class);
 
+        //Proofs
+        this.supportedMessages.put(PresentationsListMessage.type, PresentationsListMessage.class);
+        this.supportedMessages.put(PresentationMatchingCredentialsMessage.type, PresentationMatchingCredentialsMessage.class);
+        this.supportedMessages.put(PresentationSentMessage.type, PresentationSentMessage.class);
+
     }
 
     public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections){
         this(storage, messageSender, eventEmitter, agentConnections,"default_admin_connection");
     }
 
-    private void setAdminConnection(ConnectionRecord adminConnection, String connectionName) throws InterruptedException, ExecutionException, IndyException, JSONException {
+    //TODO - Make behavior more explicit / separate portions to connections module?
+    public void setAdminConnection(ConnectionRecord adminConnection, String connectionName) throws InterruptedException, ExecutionException, IndyException, JSONException {
         //Remove tag from old connection
         Log.d(TAG, "Setting admin connection");
         try{
@@ -134,8 +146,8 @@ public class Admin extends MessageListener {
         Log.d(TAG, "Updated new record to have admin tag");
     }
 
-    private void setAdminConnection(ConnectionRecord adminConnection) throws InterruptedException, ExecutionException, IndyException, JSONException {
-        this.setAdminConnection(adminConnection, "default_admin_connection");
+    public void setAdminConnection(ConnectionRecord adminConnection) throws InterruptedException, ExecutionException, IndyException, JSONException {
+        setAdminConnection(adminConnection, "default_admin_connection");
     }
 
     public void sendTrustPing() throws InterruptedException, ExecutionException, IndyException, JSONException {
@@ -164,7 +176,6 @@ public class Admin extends MessageListener {
             return retrieveAdminConnectionRecord(adminInvitationUrl);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
-            e.printStackTrace();
             throw e;
         }
     }
@@ -173,7 +184,7 @@ public class Admin extends MessageListener {
         JsonObject query = new JsonObject();
         query.addProperty("admin_connection", adminName);
         Log.d(TAG, "Searching for adminConnection with invitation URL: "+adminName);
-        return (ConnectionRecord) this.storage.retrieveRecordsByTags(ConnectionRecord.type, query, 1000);
+        return (ConnectionRecord) this.storage.retrieveRecordsByTags(ConnectionRecord.type, query, 1);
     }
 
 
@@ -187,6 +198,7 @@ public class Admin extends MessageListener {
     @Override
     public void _callback(String type, BaseMessage message, String senderVerkey){
         BaseRecord record;
+        Log.d(TAG, "Type: "+ type);
         switch(type){
           //Basic Messages
             case ReceivedBasicMessages.type:
@@ -204,7 +216,7 @@ public class Admin extends MessageListener {
                 break;
             case ConnectedMessage.type:
                 Log.d(TAG, "Admin received connected message");
-                record = new AdminConnectedRecord((ConnectedMessage) message, this.adminConnection);;
+                record = new AdminConnectedRecord((ConnectedMessage) message, this.adminConnection);
                 break;
             case ConnectionListMessage.type:
                 Log.d(TAG, "Admin fetched connections list");
@@ -222,6 +234,15 @@ public class Admin extends MessageListener {
             case CredentialsListMessage.type:
                 Log.d(TAG, "Admin credentials list received");
                 record = new AdminCredentialsListReceivedRecord((CredentialsListMessage)message, this.adminConnection);
+                break;
+          //Proofs
+            case PresentationsListMessage.type:
+                Log.d(TAG, "Admin presentations list received");
+                record = new AdminPresentationsListRecord((PresentationsListMessage) message, this.adminConnection);
+                break;
+            case PresentationMatchingCredentialsMessage.type:
+                Log.d(TAG, "Admin matching credentials received");
+                record = new AdminMatchingCredentialsRecord((PresentationMatchingCredentialsMessage) message, this.adminConnection);
                 break;
           //Confirmation messages
             default:

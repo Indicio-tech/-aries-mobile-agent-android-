@@ -3,8 +3,7 @@ package tech.indicio.ariesmobileagentandroid.admin.proofs.messages;
 import com.google.gson.annotations.SerializedName;
 
 import tech.indicio.ariesmobileagentandroid.admin.messages.BaseOutboundAdminMessage;
-import tech.indicio.ariesmobileagentandroid.admin.proofs.AdminPresentationProposal;
-import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.proofObjects.AdminPresentationProposal;
 
 public class SendPresentationProposalMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")

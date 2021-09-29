@@ -218,5 +218,9 @@ public class Connections extends MessageListener {
         return connections;
     }
 
+    public ConnectionRecord retrieveConnectionRecordByTag(JsonObject tags) throws IndyException, ExecutionException, JSONException, InterruptedException {
+        Log.d(TAG, "Searching for connectionRecord by tags.");
+        return (ConnectionRecord) this.storage.retrieveRecordsByTags(ConnectionRecord.type, tags, 1);
+    }
 
 }
