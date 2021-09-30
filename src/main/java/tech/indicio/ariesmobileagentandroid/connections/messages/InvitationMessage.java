@@ -11,8 +11,6 @@ public class InvitationMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "https://didcomm.org/connections/1.0/invitation";
 
-    @SerializedName("@id")
-    public String id = UUID.randomUUID().toString();
     public String label;
     public String serviceEndpoint;
     public String[] recipientKeys;

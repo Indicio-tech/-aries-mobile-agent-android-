@@ -10,9 +10,6 @@ public class ReceiveInvitationMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
     public final static String type = "https://github.com/hyperledger/aries-toolbox/tree/master/docs/admin-connections/0.1/receive-invitation";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("auto_accept")
     public boolean autoAccept;
 

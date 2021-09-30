@@ -10,9 +10,6 @@ public class CredentialsListMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/credentials-list";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("~thread")
     public ThreadDecorator thread;
 

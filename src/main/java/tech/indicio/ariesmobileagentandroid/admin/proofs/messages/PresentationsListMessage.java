@@ -10,9 +10,6 @@ public class PresentationsListMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/presentations-list";
 
-    @SerializedName("@id")
-    public String id;
-
     public PresentationExchange[] results;
 
     @SerializedName("~page")

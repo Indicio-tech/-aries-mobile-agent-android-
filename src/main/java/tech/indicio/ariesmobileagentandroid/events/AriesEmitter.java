@@ -5,10 +5,6 @@ import java.util.ArrayList;
 public class AriesEmitter {
     private final ArrayList<AriesListener> listeners = new ArrayList<>();
 
-    public AriesEmitter() {
-
-    }
-
     public void registerListener(AriesListener listener) {
         this.listeners.add(listener);
     }

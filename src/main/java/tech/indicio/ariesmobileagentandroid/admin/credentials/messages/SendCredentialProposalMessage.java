@@ -9,9 +9,6 @@ public class SendCredentialProposalMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/send-credential-proposal";
 
-    @SerializedName("@id")
-    public String id;
-
     public boolean trace;
 
     @SerializedName("connection_id")
