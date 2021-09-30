@@ -4,8 +4,7 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
-
-import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
+import java.util.concurrent.TimeoutException;
 
 public class ThreadHandler {
     private static final String TAG = "AMAA - ThreadHandling";
@@ -24,8 +23,11 @@ public class ThreadHandler {
         new Thread(()->{
             try {
                 Thread.sleep(120000);
-                this.threadMap.remove(messageId);
-            } catch (InterruptedException e) {
+                if(this.threadMap.containsKey(messageId)){
+                    this.threadMap.get(messageId).completeExceptionally(new TimeoutException("Timed out after 2 minutes"));
+                    this.threadMap.remove(messageId);
+                }
+            } catch (Exception e) {
                 Log.e(TAG, "Cache removal interrupted");
                 e.printStackTrace();
             }
