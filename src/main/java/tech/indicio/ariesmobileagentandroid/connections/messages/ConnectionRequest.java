@@ -12,9 +12,6 @@ public class ConnectionRequest extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "https://didcomm.org/connections/1.0/request";
 
-    @SerializedName("@id")
-    public String id;
-
     public String label;
     public Connection connection;
 

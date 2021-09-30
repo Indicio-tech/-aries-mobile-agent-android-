@@ -38,7 +38,7 @@ public class BasicMessaging extends MessageListener {
     }
 
     @Override
-    public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
+    protected HashMap<String, Class<? extends BaseMessage>> getSupportedMessages() {
         return this.supportedMessages;
     }
 
@@ -50,7 +50,7 @@ public class BasicMessaging extends MessageListener {
     }
 
     @Override
-    public void _callback(String type, BaseMessage message, String senderVerkey) {
+    protected void callback(String type, BaseMessage message, String senderVerkey) {
         try {
             Log.d(TAG, "Sender verkey: " + senderVerkey);
             ConnectionRecord senderConnection = this.connections.retrieveConnectionRecordByVerkey(senderVerkey);

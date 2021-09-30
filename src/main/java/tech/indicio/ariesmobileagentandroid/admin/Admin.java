@@ -174,6 +174,7 @@ public class Admin extends MessageListener {
             return retrieveAdminConnectionRecord(adminInvitationUrl);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
+            e.printStackTrace();
             throw e;
         }
     }
@@ -188,13 +189,13 @@ public class Admin extends MessageListener {
 
     //Event functions
     @Override
-    public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
+    protected HashMap<String, Class<? extends BaseMessage>> getSupportedMessages() {
         return this.supportedMessages;
     }
 
 
     @Override
-    public void _callback(String type, BaseMessage message, String senderVerkey) {
+    protected void callback(String type, BaseMessage message, String senderVerkey) {
         BaseRecord record;
         Log.d(TAG, "Type: " + type);
         switch (type) {

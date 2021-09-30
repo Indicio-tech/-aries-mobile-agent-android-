@@ -9,12 +9,9 @@ import tech.indicio.ariesmobileagentandroid.messaging.decorators.TimingDecorator
 import tech.indicio.ariesmobileagentandroid.messaging.decorators.TransportDecorator;
 
 public class TrustPingMessage extends BaseMessage {
-    //These 2 are required
+
     @SerializedName("@type")
     public final static String type = "https://didcomm.org/trust_ping/1.0/ping";
-
-    @SerializedName("@id")
-    public String id;
 
     //These 3 are optional
     @SerializedName("response_requested")

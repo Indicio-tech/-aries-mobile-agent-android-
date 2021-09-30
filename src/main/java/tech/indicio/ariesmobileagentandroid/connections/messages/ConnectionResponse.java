@@ -11,9 +11,6 @@ public class ConnectionResponse extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/response";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("~thread")
     public ThreadDecorator thread;
 
