@@ -9,9 +9,6 @@ public class SendPresentationProposalMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/send-presentation-proposal";
 
-    @SerializedName("@id")
-    public String id;
-
     public boolean trace;
 
     @SerializedName("connection_id")

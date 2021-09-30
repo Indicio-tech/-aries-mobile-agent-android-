@@ -14,9 +14,6 @@ public class PresentationMatchingCredentialsMessage extends BaseMessage {
     @SerializedName("~thread")
     public ThreadDecorator thread;
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;
 

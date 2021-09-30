@@ -10,9 +10,6 @@ public class PresentationGetMatchingCredentialsMessage extends BaseOutboundAdmin
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/presentation-get-matching-credentials";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;
 

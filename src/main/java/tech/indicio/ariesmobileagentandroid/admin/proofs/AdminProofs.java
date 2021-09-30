@@ -1,14 +1,17 @@
 package tech.indicio.ariesmobileagentandroid.admin.proofs;
 
-import org.hyperledger.indy.sdk.IndyException;
-import org.json.JSONException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
-import java.util.concurrent.ExecutionException;
-
+import tech.indicio.ariesmobileagentandroid.admin.AdminMessageConfirmationRecord;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminMatchingCredentialsRecord;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminPresentationsListRecord;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationGetMatchingCredentialsMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationMatchingCredentialsMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationRequestApproveMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationSentMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationsGetListMessage;
+import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationsListMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.proofObjects.PresentationRequest;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
@@ -23,31 +26,55 @@ public class AdminProofs {
         this.adminConnection = adminConnection;
     }
 
-    public void _setAdminConnection(ConnectionRecord adminConnection) {
+    protected void setAdminConnection(ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
     }
 
-    public String sendGetPresentations() throws InterruptedException, ExecutionException, IndyException, JSONException {
-        PresentationsGetListMessage message = new PresentationsGetListMessage();
-        this.messageSender.sendMessage(message, this.adminConnection);
-        return message.id;
+    //TODO - PresentationsListMessage does not contain thread information
+    public CompletableFuture<Void> sendGetPresentations() {
+        return CompletableFuture.runAsync(() -> {
+            try{
+                PresentationsGetListMessage message = new PresentationsGetListMessage();
+                this.messageSender.sendMessage(message, this.adminConnection);
+            }catch(Exception e){
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    public String sendGetPresentationsByConnection(String connectionId) throws InterruptedException, ExecutionException, IndyException, JSONException {
-        PresentationsGetListMessage message = new PresentationsGetListMessage(connectionId);
-        this.messageSender.sendMessage(message, this.adminConnection);
-        return message.id;
+    //TODO - PresentationsListMessage does not contain thread information
+    public CompletableFuture<Void> sendGetPresentationsByConnection(String connectionId) {
+        return CompletableFuture.runAsync(() -> {
+            try{
+                PresentationsGetListMessage message = new PresentationsGetListMessage(connectionId);
+                this.messageSender.sendMessage(message, this.adminConnection);
+            }catch(Exception e){
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    public String sendGetMatchingCredentials(String presentationExchangeId) throws InterruptedException, ExecutionException, IndyException, JSONException {
-        PresentationGetMatchingCredentialsMessage message = new PresentationGetMatchingCredentialsMessage(presentationExchangeId);
-        this.messageSender.sendMessage(message, this.adminConnection);
-        return message.id;
+    public CompletableFuture<AdminMatchingCredentialsRecord> sendGetMatchingCredentials(String presentationExchangeId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try{
+                PresentationGetMatchingCredentialsMessage message = new PresentationGetMatchingCredentialsMessage(presentationExchangeId);
+                PresentationMatchingCredentialsMessage matchingMessage = (PresentationMatchingCredentialsMessage) this.messageSender.sendMessage(message, this.adminConnection).get();
+                return new AdminMatchingCredentialsRecord(matchingMessage, this.adminConnection);
+            }catch(Exception e){
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    public String sendAcceptRequest(AdminMatchingCredentialsRecord record, PresentationRequest presentationRequest) throws InterruptedException, ExecutionException, IndyException, JSONException {
-        PresentationRequestApproveMessage message = new PresentationRequestApproveMessage(record, presentationRequest);
-        this.messageSender.sendMessage(message, this.adminConnection);
-        return message.id;
+    public CompletableFuture<AdminMessageConfirmationRecord> sendAcceptRequest(AdminMatchingCredentialsRecord record, PresentationRequest presentationRequest){
+        return CompletableFuture.supplyAsync(() -> {
+            try{
+                PresentationRequestApproveMessage message = new PresentationRequestApproveMessage(record, presentationRequest);
+                PresentationSentMessage sentMessage = (PresentationSentMessage) this.messageSender.sendMessage(message, this.adminConnection).get();
+                return new AdminMessageConfirmationRecord(sentMessage, adminConnection);
+            }catch(Exception e){
+                throw new CompletionException(e);
+            }
+        });
     }
 }

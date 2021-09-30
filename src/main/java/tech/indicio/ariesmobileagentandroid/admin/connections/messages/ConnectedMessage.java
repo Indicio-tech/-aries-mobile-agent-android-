@@ -9,9 +9,6 @@ public class ConnectedMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "https://github.com/hyperledger/aries-toolbox/tree/master/docs/admin-connections/0.1/connected";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("connection_id")
     public String connectionId;
 

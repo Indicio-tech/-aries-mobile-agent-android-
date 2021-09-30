@@ -12,9 +12,6 @@ public class CredentialRequestSentMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/credential-request-sent";
 
-    @SerializedName("@id")
-    public String id;
-
     public String state;
 
     @SerializedName("created_at")

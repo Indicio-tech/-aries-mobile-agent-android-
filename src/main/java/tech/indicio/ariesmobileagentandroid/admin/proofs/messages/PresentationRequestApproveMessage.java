@@ -12,10 +12,7 @@ import tech.indicio.ariesmobileagentandroid.admin.proofs.proofObjects.Presentati
 
 public class PresentationRequestApproveMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
-    public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/presentation-request-approve";
-
-    @SerializedName("@id")
-    public String id;
+    public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/presentation-request-approve";;
 
     @SerializedName("presentation_exchange_id")
     public String presentationExchangeId;

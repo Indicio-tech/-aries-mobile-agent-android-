@@ -39,8 +39,6 @@ public class Connections extends MessageListener {
     //Add supported message classes in constructor.
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
 
-    private final HashMap<String, ConnectionStateHandler> connectionStateHandlers = new HashMap<>();
-
     public Connections(IndyWallet indyWallet, MessageSender messageSender, Storage storage) {
         Log.d(TAG, "Creating Connections service");
         this.indyWallet = indyWallet;
@@ -53,15 +51,8 @@ public class Connections extends MessageListener {
 
     }
 
-    public void registerConnectionStateHandler(ConnectionStateHandler handler) {
-        connectionStateHandlers.put(handler.id, handler);
-    }
-
-    public void removeConnectionStateHandler(ConnectionStateHandler handler) {
-        connectionStateHandlers.remove(handler.id);
-    }
-
-    public HashMap<String, Class<? extends BaseMessage>> _getSupportedMessages() {
+    @Override
+    protected HashMap<String, Class<? extends BaseMessage>> getSupportedMessages() {
         return this.supportedMessages;
     }
 
@@ -144,7 +135,7 @@ public class Connections extends MessageListener {
     }
 
     @Override
-    public void _callback(String type, BaseMessage message, String senderVerkey) {
+    protected void callback(String type, BaseMessage message, String senderVerkey) {
         switch (type) {
             case ConnectionResponse.type:
                 processResponse((ConnectionResponse) message);

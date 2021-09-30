@@ -10,9 +10,6 @@ public class PresentationsGetListMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/presentations-get-list";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("connection_id")
     public String connectionId;
 

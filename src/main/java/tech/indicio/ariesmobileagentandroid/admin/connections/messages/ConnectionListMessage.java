@@ -10,9 +10,6 @@ public class ConnectionListMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "https://github.com/hyperledger/aries-toolbox/tree/master/docs/admin-connections/0.1/list";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("~thread")
     public ThreadDecorator thread;
     public AdminConnection[] connections;

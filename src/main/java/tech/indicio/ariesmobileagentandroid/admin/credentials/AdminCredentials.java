@@ -19,7 +19,7 @@ public class AdminCredentials {
         this.adminConnection = adminConnection;
     }
 
-    public void _setAdminConnection(ConnectionRecord adminConnection) {
+    protected void setAdminConnection(ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
     }
 
