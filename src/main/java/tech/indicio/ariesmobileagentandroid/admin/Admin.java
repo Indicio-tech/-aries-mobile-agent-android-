@@ -116,6 +116,9 @@ public class Admin extends MessageListener {
 
     //TODO - Make behavior more explicit / separate portions to connections module?
     public void setAdminConnection(ConnectionRecord adminConnection, String connectionName) throws InterruptedException, ExecutionException, IndyException, JSONException {
+        //Ensure ConnectionRecord is latest version
+        adminConnection = agentConnections.retrieveConnectionRecord(adminConnection.id);
+
         //Remove tag from old connection
         Log.d(TAG, "Setting admin connection");
         try {
