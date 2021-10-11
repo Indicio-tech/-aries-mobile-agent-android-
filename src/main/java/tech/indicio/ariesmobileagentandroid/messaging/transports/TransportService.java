@@ -23,10 +23,11 @@ public class TransportService {
     public void send(byte[] message, String endpoint, ConnectionRecord connection) {
         try {
             //TODO: Alter inbound message passing strategy
-            if(endpoint.startsWith("ws")){
+            //TODO Replace with switch statement
+            if (endpoint.startsWith("ws")) {
                 Log.d(TAG, "Sending Message to Endpoint '" + endpoint + "' over web sockets");
                 this.wsClientTransport.send(message, endpoint, connection);
-            }else{
+            } else {
                 Log.d(TAG, "Sending Message to Endpoint '" + endpoint + "' over HTTP");
                 this.httpTransport.send(message, endpoint);
             }

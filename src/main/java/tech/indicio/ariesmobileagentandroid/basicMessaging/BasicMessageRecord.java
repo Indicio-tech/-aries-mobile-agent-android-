@@ -19,16 +19,6 @@ public class BasicMessageRecord extends BaseRecord {
     public BasicMessageRole role;
     public String connectionId;
 
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    public enum BasicMessageRole  {
-        SENT,
-        RECEIVED
-    }
-
     public BasicMessageRecord(BasicMessage basicMessage, BasicMessageRole role, String connectionId) {
         this.id = basicMessage.id;
         this.createdAt = new Date();
@@ -40,5 +30,15 @@ public class BasicMessageRecord extends BaseRecord {
         //Save connectionId as a tag so it's easier to search for by connection
         this.tags = new JsonObject();
         this.tags.addProperty("connectionId", connectionId);
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    public enum BasicMessageRole {
+        SENT,
+        RECEIVED
     }
 }

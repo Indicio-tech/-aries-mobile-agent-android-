@@ -29,7 +29,7 @@ public class TrustPingMessage extends BaseMessage {
     @SerializedName("~transport")
     public TransportDecorator transport;
 
-    public TrustPingMessage(boolean responseRequested, String comment, String returnRoute){
+    public TrustPingMessage(boolean responseRequested, String comment, String returnRoute) {
         this.id = UUID.randomUUID().toString();
         this.responseRequested = responseRequested;
         this.comment = comment;

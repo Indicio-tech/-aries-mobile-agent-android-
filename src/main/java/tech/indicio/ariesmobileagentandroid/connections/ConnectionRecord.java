@@ -31,7 +31,6 @@ public class ConnectionRecord extends BaseRecord {
     public String threadId;
 
 
-
     //Constructor for Connections.receiveInvitation
     public ConnectionRecord(
             String id,

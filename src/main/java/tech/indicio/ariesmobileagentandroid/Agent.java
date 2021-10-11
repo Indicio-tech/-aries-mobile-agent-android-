@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
+import tech.indicio.ariesmobileagentandroid.admin.Admin;
 import tech.indicio.ariesmobileagentandroid.basicMessaging.BasicMessaging;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
@@ -21,25 +22,28 @@ import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
 public class Agent {
     private static final String TAG = "AMAA-Agent";
-    private Storage storage;
     public Connections connections;
     public BasicMessaging basicMessaging;
     public AriesEmitter eventEmitter;
+    public Admin admin;
+    private final Storage storage;
     private IndyWallet indyWallet;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
     private Pool pool;
     private String ledgerConfig;
+    private String adminInvitationUrl = null;
 
     /**
      * @param configJson stringified json config file {
      *                   "agentId": String - identifier for indy wallet.
      *                   "walletKey": String - agent encryption key.
      *                   "ledgerConfig": (optional) ledger config json {
-     *                      ledgerName: String - Name for ledger pool.
-     *                      genesisFileLocation: String - File location of downloaded genesis file.
+     *                   ledgerName: String - Name for ledger pool.
+     *                   genesisFileLocation: String - File location of downloaded genesis file.
      *                   }
-     *              }
+     *                   "adminInvitationUrl": (optional) String - the invitation URL of the admin connection
+     *                   }
      */
     public Agent(String configJson) {
         //Load indy library
@@ -60,6 +64,11 @@ public class Agent {
                 this.ledgerConfig = config.getString("ledgerConfig");
                 this.pool = this.openPool(this.ledgerConfig);
             }
+
+            if (config.has("adminInvitationUrl")) {
+                this.adminInvitationUrl = config.getString("adminInvitationUrl");
+            }
+
         } catch (Exception e) {
             IndySdkRejectResponse rejectResponse = new IndySdkRejectResponse(e);
             String code = rejectResponse.getCode();
@@ -84,9 +93,16 @@ public class Agent {
             this.messageSender = new MessageSender(this.indyWallet, this.messageReceiver); //Put transport service inside of messageSender
 
             this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
-            this.basicMessaging = new BasicMessaging(this.indyWallet, this.messageSender, this.storage, this.connections);
             this.messageReceiver.registerListener(this.connections);
+
+            this.basicMessaging = new BasicMessaging(this.indyWallet, this.messageSender, this.storage, this.connections);
             this.messageReceiver.registerListener(this.basicMessaging);
+
+            if (this.adminInvitationUrl == null)
+                this.admin = new Admin(this.storage, this.messageSender, this.eventEmitter, this.connections);
+            else
+                this.admin = new Admin(this.storage, this.messageSender, this.eventEmitter, this.connections, this.adminInvitationUrl);
+            this.messageReceiver.registerListener(this.admin);
 
             //Register Transports
         } catch (Exception e) {
@@ -144,7 +160,7 @@ public class Agent {
 
     public void deleteAgent() throws IndyException, ExecutionException, InterruptedException, JSONException {
         this.indyWallet.deleteWallet();
-        if(this.pool != null){
+        if (this.pool != null) {
             JSONObject ledgerConfig = new JSONObject(this.ledgerConfig);
             Log.d(TAG, "Deleting ledger pool");
             Pool.deletePoolLedgerConfig(ledgerConfig.getString("ledgername")).get();

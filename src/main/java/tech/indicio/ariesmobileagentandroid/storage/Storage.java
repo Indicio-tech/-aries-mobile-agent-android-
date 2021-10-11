@@ -9,6 +9,7 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +37,7 @@ public class Storage {
         String value = gson.toJson(record);
 
         //Logs for testing
+        //TODO - Make a logging service
         try {
             String prettyString = new JSONObject(value).toString(4).replaceAll("\\\\", "");
             Log.d(TAG, "Storing " + type + " record" + ".\n" + prettyString);
@@ -75,7 +77,7 @@ public class Storage {
 
 
     public BaseRecord retrieveRecord(String type, String id) throws IndyException, ExecutionException, InterruptedException, JSONException {
-        Log.d(TAG, "Retrieving "+type+" record...");
+        Log.d(TAG, "Retrieving " + type + " record...");
         //Check if type exists on recordClass map
         if (this.recordClasses.containsKey(type)) {
             Class<? extends BaseRecord> recordClass = this.recordClasses.get(type);
@@ -98,8 +100,26 @@ public class Storage {
             Gson gson = new Gson();
             return gson.fromJson(record, recordClass);
         } else {
-            throw new Error("Unsupported record");
+            throw new Error("Unsupported record type");
         }
+    }
+
+    public BaseRecord retrieveRecordsByTags(String type, JsonObject tags, int limit) throws IndyException, ExecutionException, InterruptedException, JSONException {
+        if (this.recordClasses.containsKey(type)) {
+            Class<? extends BaseRecord> recordClass = this.recordClasses.get(type);
+            ArrayList<String> recordList = indyWallet.searchByQuery(type, tags, limit);
+            if (recordList.isEmpty()) {
+                throw new Error("Could not find any matching records");
+            }
+
+            Gson gson = new Gson();
+            return gson.fromJson(recordList.get(0), recordClass);
+
+        } else {
+            throw new Error("Unsupported record type");
+        }
+
+
     }
 
     public void registerRecordClass(String type, Class<? extends BaseRecord> recordClass) {
