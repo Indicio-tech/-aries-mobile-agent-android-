@@ -9,6 +9,7 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.IndyWallet;
@@ -22,13 +23,15 @@ public class MessageSender {
 
     private final IndyWallet indyWallet;
     private final TransportService transportService;
+    private final ThreadHandler threadHandler;
 
-    public MessageSender(IndyWallet indyWallet, MessageReceiver messageReceiver) {
+    public MessageSender(IndyWallet indyWallet, MessageReceiver messageReceiver, ThreadHandler threadHandler) {
+        this.threadHandler = threadHandler;
         this.indyWallet = indyWallet;
         this.transportService = new TransportService(messageReceiver, this);
     }
 
-    public void sendMessage(BaseMessage message, ConnectionRecord connectionRecord) throws JSONException, InterruptedException, ExecutionException, IndyException {
+    public CompletableFuture<BaseMessage> sendMessage(BaseMessage message, ConnectionRecord connectionRecord) throws JSONException, InterruptedException, ExecutionException, IndyException {
         String endpoint;
         String[] recipientKeys;
 
@@ -57,7 +60,12 @@ public class MessageSender {
         byte[] packedMessage = this.indyWallet.packMessage(jsonMessage, recipientKeys, senderVerkey);
         Log.d(TAG, "OUTBOUND MESSAGE:" + jsonMessage);
 
+        CompletableFuture<BaseMessage> thread = new CompletableFuture<BaseMessage>();
+        this.threadHandler.cacheMessageId(message.id, thread);
+
         this.transportService.send(packedMessage, endpoint, connectionRecord);
+
+        return thread;
     }
 
     private IndyService selectService(IndyService[] services, String[] protocolPreference) {

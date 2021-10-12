@@ -10,9 +10,6 @@ public class CredentialOfferAcceptMessage extends BaseOutboundAdminMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin-holder/0.1/credential-offer-accept";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("credential_exchange_id")
     public String credentialExchangeId;
 

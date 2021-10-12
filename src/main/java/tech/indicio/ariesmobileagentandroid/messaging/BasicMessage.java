@@ -12,9 +12,6 @@ public class BasicMessage extends BaseMessage {
     @SerializedName("@type")
     public final static String type = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/basicmessage/1.0/message";
 
-    @SerializedName("@id")
-    public String id;
-
     @SerializedName("~l10n")
     public LocalizationDecorator l10n;
 

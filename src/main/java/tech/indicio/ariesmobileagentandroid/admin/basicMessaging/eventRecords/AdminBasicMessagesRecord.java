@@ -64,7 +64,6 @@ public class AdminBasicMessagesRecord extends BaseRecord {
                     DateFormat format = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SS", Locale.ENGLISH);
                     Date date1 = format.parse(m1.sentTime);
                     Date date2 = format.parse(m2.sentTime);
-                    Log.d("AAA", String.valueOf(date1.compareTo(date2)));
                     return date1.compareTo(date2);
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -17,6 +17,7 @@ import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.events.AriesEmitter;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageReceiver;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
+import tech.indicio.ariesmobileagentandroid.messaging.ThreadHandler;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
 
@@ -28,6 +29,7 @@ public class Agent {
     public Admin admin;
     private final Storage storage;
     private IndyWallet indyWallet;
+    protected ThreadHandler threadHandler;
     private MessageReceiver messageReceiver;
     private MessageSender messageSender;
     private Pool pool;
@@ -89,8 +91,9 @@ public class Agent {
 
         //Creating MessageReceiver and registering connections
         try {
-            this.messageReceiver = new MessageReceiver(this.indyWallet);
-            this.messageSender = new MessageSender(this.indyWallet, this.messageReceiver); //Put transport service inside of messageSender
+            this.threadHandler = new ThreadHandler();
+            this.messageReceiver = new MessageReceiver(this.indyWallet, this.threadHandler);
+            this.messageSender = new MessageSender(this.indyWallet, this.messageReceiver, this.threadHandler); //Put transport service inside of messageSender
 
             this.connections = new Connections(this.indyWallet, this.messageSender, this.storage);
             this.messageReceiver.registerListener(this.connections);
