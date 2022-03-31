@@ -15,13 +15,15 @@ import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.GetBas
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.ReceivedBasicMessages;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.SendBasicMessage;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.SentBasicMessage;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminSendTrustPing;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminSentTrustPing;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
+import tech.indicio.ariesmobileagentandroid.messaging.BaseMessage;
 import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 
-import tech.indicio.areismobileagentandroid.trustPing.messages.AdminSendTrustPing;
 
 
-public class AdminTrustPing {
+public class AdminTrustPing extends BaseMessage {
     private final MessageSender messageSender;
     private ConnectionRecord adminConnection;
 
@@ -34,13 +36,13 @@ public class AdminTrustPing {
         this.adminConnection = adminConnection;
     }
 
-    public CompletableFuture<AdminMessageConfirmationRecod> sendTrustPing(String comment, String connectionId){
+    public CompletableFuture<AdminMessageConfirmationRecord> sendTrustPing(String comment, String connectionId){
         return CompletableFuture.supplyAsync(() ->{
             try{
                 AdminSendTrustPing ping = new AdminSendTrustPing(comment, connectionId);
                 AdminSentTrustPing sent = (AdminSentTrustPing) this.messageSender.sendMessage(ping, this.adminConnection).get();
                 //need to create AdminTrustPingConfirmationRecord
-                return new AdminMessageConfirmationRecond(sentMessage, adminConnection);
+                return new AdminMessageConfirmationRecord(sent, adminConnection);
             }catch (Exception e){
                 throw new CompletionException(e);
             }

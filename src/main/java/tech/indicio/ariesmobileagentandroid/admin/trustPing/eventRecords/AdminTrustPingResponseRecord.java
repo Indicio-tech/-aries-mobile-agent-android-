@@ -11,7 +11,7 @@ public class AdminTrustPingResponseRecord extends BaseRecord {
     public ConnectionRecord adminConnection;
     public AdminResponseReceivedTrustPing message;
 
-    public AdminBasicMessageReceivedRecord(AdminResponseReceivedTrustPing message, ConnectionRecord adminConnection) {
+    public AdminTrustPingResponseRecord(AdminResponseReceivedTrustPing message, ConnectionRecord adminConnection) {
         this.adminConnection = adminConnection;
         this.message = message;
         this.id = message.id;
