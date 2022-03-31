@@ -1,4 +1,4 @@
-package tech.indicio.ariesmobileagentandroid.admin.trustping.messages;
+package tech.indicio.ariesmobileagentandroid.admin.trustPing.messages;
 
 import com.google.gson.annotations.SerializedName;
 
