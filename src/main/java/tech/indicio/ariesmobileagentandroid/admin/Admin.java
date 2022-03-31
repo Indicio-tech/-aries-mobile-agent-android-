@@ -52,6 +52,11 @@ import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
+import tech.indicio.areismobileagentandroid.trustPing.messages.AdminSendTrustPing;
+import tech.indicio.areismobileagentandroid.trustPing.messages.AdminResponseReceivedTrustPing;
+import tech.indicio.areismobileagentandroid.trustPing.AdminTrustPing;
+
+
 public class Admin extends MessageListener {
     private static final String TAG = "AMAA-Admin";
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
@@ -60,6 +65,7 @@ public class Admin extends MessageListener {
     public AdminBasicMessaging basicMessaging;
     public AdminCredentials credentials;
     public AdminProofs proofs;
+    public AdminTrustPing trustPing;
     //For creating admin connection
     public boolean connectedToAdmin = false;
     private final MessageSender messageSender;
@@ -108,6 +114,9 @@ public class Admin extends MessageListener {
         this.supportedMessages.put(PresentationMatchingCredentialsMessage.type, PresentationMatchingCredentialsMessage.class);
         this.supportedMessages.put(PresentationSentMessage.type, PresentationSentMessage.class);
 
+        //Trust Ping
+        this.supportedMessages.put(AdminResponseReceivedTrustPing.type, AdminResponseReceivedTrustPing,class);
+
     }
 
     public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections) {
@@ -131,13 +140,13 @@ public class Admin extends MessageListener {
         }
 
         this.adminConnection = adminConnection;
-        TrustPingMessage trustPing = new TrustPingMessage(false, "adminConnection", "all");
         this.messageSender.sendMessage(trustPing, adminConnection);
 
         this.basicMessaging = new AdminBasicMessaging(this.messageSender, adminConnection);
         this.connections = new AdminConnections(this.messageSender, adminConnection);
         this.proofs = new AdminProofs(this.messageSender, adminConnection);
         this.credentials = new AdminCredentials(this.messageSender, adminConnection);
+        this.trustPing = new AdminTrustPing(this.messageSender, adminConnection);
 
         Log.d(TAG, "Updating admin record tags");
         adminConnection.tags.addProperty("admin_connection", connectionName);
@@ -245,6 +254,11 @@ public class Admin extends MessageListener {
             case PresentationMatchingCredentialsMessage.type:
                 Log.d(TAG, "Admin matching credentials received");
                 record = new AdminMatchingCredentialsRecord((PresentationMatchingCredentialsMessage) message, this.adminConnection);
+                break;
+            //Trust ping Response Received
+            case AdminResponseReceivedTrustPing.type:
+                Log.d(TAG, "Admin Trust Ping Response Received");
+                record = new AdminTrustPingResponseRecord((AdminResponseReceivedTrustPing) message, this.adminConnection);
                 break;
             //Confirmation messages
             default:
