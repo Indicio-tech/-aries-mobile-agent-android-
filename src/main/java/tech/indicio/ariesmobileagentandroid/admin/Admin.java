@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -187,9 +188,8 @@ public class Admin extends MessageListener {
         try {
             ConnectionRecord connection = this.agentConnections.receiveInvitationUrl(adminInvitationUrl);
             this.adminConnectionId = connection.id;
-            //TODO - make this more generic
-            latch.await(); //wait until connected to admin
-            return retrieveAdminConnectionRecord(adminInvitationUrl);
+            latch.await();
+            return this.agentConnections.retrieveConnectionRecord(this.adminConnectionId);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
             e.printStackTrace();
@@ -284,9 +284,9 @@ public class Admin extends MessageListener {
                     if (cRecord.id.equals(adminConnectionId) && cRecord.state.equals(ConnectionRecord.ConnectionState.COMPLETE) && !connectedToAdmin) {
                         //When the admin connection is completed then set it as an admin connection.
                         try {
+                            setAdminConnection(cRecord, adminInvitationUrl);
                             connectedToAdmin = true;
                             latch.countDown();
-                            setAdminConnection(cRecord, adminInvitationUrl);
                             Log.d(TAG, "Admin connection completed");
                         } catch (Exception e) {
                             e.printStackTrace();
