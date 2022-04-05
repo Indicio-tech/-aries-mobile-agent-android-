@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminBasicMessaging;
-import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminTrustPing;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.AdminTrustPing;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessageReceivedRecord;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessagesRecord;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.DeleteBasicMessage;
@@ -41,8 +41,10 @@ import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminPrese
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationMatchingCredentialsMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationSentMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationsListMessage;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.AdminTrustPing;
 import tech.indicio.ariesmobileagentandroid.admin.trustPing.eventRecords.AdminTrustPingResponseRecord;
 import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminResponseReceivedTrustPing;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminSentTrustPing;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.connections.messages.TrustPingMessage;
@@ -117,6 +119,7 @@ public class Admin extends MessageListener {
 
         //Trust Ping
         this.supportedMessages.put(AdminResponseReceivedTrustPing.type, AdminResponseReceivedTrustPing.class);
+        this.supportedMessages.put(AdminSentTrustPing.type, AdminSentTrustPing.class);
 
     }
 
@@ -141,7 +144,8 @@ public class Admin extends MessageListener {
         }
 
         this.adminConnection = adminConnection;
-        this.messageSender.sendMessage(trustPing, adminConnection);
+        TrustPingMessage adminPing = new TrustPingMessage(false,"adminConnection","all");
+        this.messageSender.sendMessage(adminPing, adminConnection);
 
         this.basicMessaging = new AdminBasicMessaging(this.messageSender, adminConnection);
         this.connections = new AdminConnections(this.messageSender, adminConnection);

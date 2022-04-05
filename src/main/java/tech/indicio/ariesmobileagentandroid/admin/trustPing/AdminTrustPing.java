@@ -1,4 +1,4 @@
-package tech.indicio.ariesmobileagentandroid.admin.basicMessaging;
+package tech.indicio.ariesmobileagentandroid.admin.trustPing;
 
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
@@ -40,6 +40,19 @@ public class AdminTrustPing extends BaseMessage {
         return CompletableFuture.supplyAsync(() ->{
             try{
                 AdminSendTrustPing ping = new AdminSendTrustPing(comment, connectionId);
+                AdminSentTrustPing sent = (AdminSentTrustPing) this.messageSender.sendMessage(ping, this.adminConnection).get();
+                //need to create AdminTrustPingConfirmationRecord
+                return new AdminMessageConfirmationRecord(sent, adminConnection);
+            }catch (Exception e){
+                throw new CompletionException(e);
+            }
+        });
+    }
+
+    public CompletableFuture<AdminMessageConfirmationRecord> sendTrustPing(String connectionId){
+        return CompletableFuture.supplyAsync(() ->{
+            try{
+                AdminSendTrustPing ping = new AdminSendTrustPing(connectionId);
                 AdminSentTrustPing sent = (AdminSentTrustPing) this.messageSender.sendMessage(ping, this.adminConnection).get();
                 //need to create AdminTrustPingConfirmationRecord
                 return new AdminMessageConfirmationRecord(sent, adminConnection);
