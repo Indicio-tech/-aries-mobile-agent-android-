@@ -8,6 +8,7 @@ import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminBasicMessaging;
@@ -78,6 +79,7 @@ public class Admin extends MessageListener {
     private String adminConnectionId;
     private String adminInvitationUrl;
     private final AdminListener adminListener;
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections, String adminInvitationUrl) {
         this.messageSender = messageSender;
@@ -186,8 +188,7 @@ public class Admin extends MessageListener {
             ConnectionRecord connection = this.agentConnections.receiveInvitationUrl(adminInvitationUrl);
             this.adminConnectionId = connection.id;
             //TODO - make this more generic
-            while (!connectedToAdmin) {
-            } //wait until connected to admin
+            latch.await(); //wait until connected to admin
             return retrieveAdminConnectionRecord(adminInvitationUrl);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
@@ -284,6 +285,7 @@ public class Admin extends MessageListener {
                         //When the admin connection is completed then set it as an admin connection.
                         try {
                             connectedToAdmin = true;
+                            latch.countDown();
                             setAdminConnection(cRecord, adminInvitationUrl);
                             Log.d(TAG, "Admin connection completed");
                         } catch (Exception e) {
