@@ -11,4 +11,8 @@ public class AdminResponseReceivedTrustPing extends BaseMessage{
     @SerializedName("@type")
     public final static String type = "https://github.com/hyperledger/aries-toolbox/tree/master/docs/admin-trustping/0.1/response-received";
 
+    public AdminResponseReceivedTrustPing(String id){
+        super();
+        this.id = id;
+    }
 }
