@@ -54,6 +54,7 @@ public class AdminTrustPing extends BaseMessage {
             try{
                 AdminSendTrustPing ping = new AdminSendTrustPing(connectionId);
                 AdminSentTrustPing sent = (AdminSentTrustPing) this.messageSender.sendMessage(ping, this.adminConnection).get();
+                //need to create AdminTrustPingConfirmationRecord
                 return new AdminMessageConfirmationRecord(sent, adminConnection);
             }catch (Exception e){
                 throw new CompletionException(e);
