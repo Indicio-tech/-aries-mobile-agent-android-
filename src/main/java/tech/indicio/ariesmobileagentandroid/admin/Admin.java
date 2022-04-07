@@ -7,10 +7,13 @@ import com.google.gson.JsonObject;
 import org.hyperledger.indy.sdk.IndyException;
 import org.json.JSONException;
 
+import java.sql.Time;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.AdminBasicMessaging;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.AdminTrustPing;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessageReceivedRecord;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.eventRecords.AdminBasicMessagesRecord;
 import tech.indicio.ariesmobileagentandroid.admin.basicMessaging.messages.DeleteBasicMessage;
@@ -40,6 +43,10 @@ import tech.indicio.ariesmobileagentandroid.admin.proofs.eventRecords.AdminPrese
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationMatchingCredentialsMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationSentMessage;
 import tech.indicio.ariesmobileagentandroid.admin.proofs.messages.PresentationsListMessage;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.AdminTrustPing;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.eventRecords.AdminTrustPingResponseRecord;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminResponseReceivedTrustPing;
+import tech.indicio.ariesmobileagentandroid.admin.trustPing.messages.AdminSentTrustPing;
 import tech.indicio.ariesmobileagentandroid.connections.ConnectionRecord;
 import tech.indicio.ariesmobileagentandroid.connections.Connections;
 import tech.indicio.ariesmobileagentandroid.connections.messages.TrustPingMessage;
@@ -52,6 +59,9 @@ import tech.indicio.ariesmobileagentandroid.messaging.MessageSender;
 import tech.indicio.ariesmobileagentandroid.storage.BaseRecord;
 import tech.indicio.ariesmobileagentandroid.storage.Storage;
 
+
+
+
 public class Admin extends MessageListener {
     private static final String TAG = "AMAA-Admin";
     private final HashMap<String, Class<? extends BaseMessage>> supportedMessages = new HashMap<>();
@@ -60,6 +70,7 @@ public class Admin extends MessageListener {
     public AdminBasicMessaging basicMessaging;
     public AdminCredentials credentials;
     public AdminProofs proofs;
+    public AdminTrustPing trustPing;
     //For creating admin connection
     public boolean connectedToAdmin = false;
     private final MessageSender messageSender;
@@ -69,6 +80,7 @@ public class Admin extends MessageListener {
     private String adminConnectionId;
     private String adminInvitationUrl;
     private final AdminListener adminListener;
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections, String adminInvitationUrl) {
         this.messageSender = messageSender;
@@ -108,6 +120,10 @@ public class Admin extends MessageListener {
         this.supportedMessages.put(PresentationMatchingCredentialsMessage.type, PresentationMatchingCredentialsMessage.class);
         this.supportedMessages.put(PresentationSentMessage.type, PresentationSentMessage.class);
 
+        //Trust Ping
+        this.supportedMessages.put(AdminResponseReceivedTrustPing.type, AdminResponseReceivedTrustPing.class);
+        this.supportedMessages.put(AdminSentTrustPing.type, AdminSentTrustPing.class);
+
     }
 
     public Admin(Storage storage, MessageSender messageSender, AriesEmitter eventEmitter, Connections agentConnections) {
@@ -131,13 +147,14 @@ public class Admin extends MessageListener {
         }
 
         this.adminConnection = adminConnection;
-        TrustPingMessage trustPing = new TrustPingMessage(false, "adminConnection", "all");
-        this.messageSender.sendMessage(trustPing, adminConnection);
+        TrustPingMessage adminPing = new TrustPingMessage(false,"adminConnection","all");
+        this.messageSender.sendMessage(adminPing, adminConnection);
 
         this.basicMessaging = new AdminBasicMessaging(this.messageSender, adminConnection);
         this.connections = new AdminConnections(this.messageSender, adminConnection);
         this.proofs = new AdminProofs(this.messageSender, adminConnection);
         this.credentials = new AdminCredentials(this.messageSender, adminConnection);
+        this.trustPing = new AdminTrustPing(this.messageSender, adminConnection);
 
         Log.d(TAG, "Updating admin record tags");
         adminConnection.tags.addProperty("admin_connection", connectionName);
@@ -171,10 +188,8 @@ public class Admin extends MessageListener {
         try {
             ConnectionRecord connection = this.agentConnections.receiveInvitationUrl(adminInvitationUrl);
             this.adminConnectionId = connection.id;
-            //TODO - make this more generic
-            while (!connectedToAdmin) {
-            } //wait until connected to admin
-            return retrieveAdminConnectionRecord(adminInvitationUrl);
+            latch.await();
+            return this.agentConnections.retrieveConnectionRecord(this.adminConnectionId);
         } catch (Exception e) {
             Log.e(TAG, "Could not connect to admin");
             e.printStackTrace();
@@ -246,6 +261,11 @@ public class Admin extends MessageListener {
                 Log.d(TAG, "Admin matching credentials received");
                 record = new AdminMatchingCredentialsRecord((PresentationMatchingCredentialsMessage) message, this.adminConnection);
                 break;
+            //Trust ping Response Received
+            case AdminResponseReceivedTrustPing.type:
+                Log.d(TAG, "Admin Trust Ping Response Received");
+                record = new AdminTrustPingResponseRecord((AdminResponseReceivedTrustPing) message, this.adminConnection);
+                break;
             //Confirmation messages
             default:
                 Log.d(TAG, "Admin confirmation event triggered");
@@ -264,8 +284,9 @@ public class Admin extends MessageListener {
                     if (cRecord.id.equals(adminConnectionId) && cRecord.state.equals(ConnectionRecord.ConnectionState.COMPLETE) && !connectedToAdmin) {
                         //When the admin connection is completed then set it as an admin connection.
                         try {
-                            connectedToAdmin = true;
                             setAdminConnection(cRecord, adminInvitationUrl);
+                            connectedToAdmin = true;
+                            latch.countDown();
                             Log.d(TAG, "Admin connection completed");
                         } catch (Exception e) {
                             e.printStackTrace();
